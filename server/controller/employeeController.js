@@ -2,6 +2,8 @@ const db = require('../db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+//============ Generating Employee ID
+
 const generateUniqueEmployeeId = async () => {
   const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   let unique = false;
@@ -22,6 +24,7 @@ const generateUniqueEmployeeId = async () => {
   return newId;
 };
 
+//====================Signup Employee
 const signupEmployee = async (req, res) => {
   const { name, email, password, role, status } = req.body;
 
@@ -48,9 +51,7 @@ const signupEmployee = async (req, res) => {
 };
 
 
-//--------------------------------------------
-
-// Utility to insert login history
+//=============== Login and maintain sessions
 
 const insertLoginHistory = async (employee_id, ip_address, user_agent) => {
   const query = `
@@ -64,7 +65,6 @@ const loginEmployee = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // 1. Check if user exists
     const result = await db.query('SELECT * FROM employees WHERE email = $1', [email]);
     if (result.rows.length === 0) {
       return res.status(400).json({ error: 'Invalid email or password.' });
@@ -72,52 +72,73 @@ const loginEmployee = async (req, res) => {
 
     const user = result.rows[0];
 
-    // 2. Compare passwords
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ error: 'Invalid email or password.' });
     }
 
-    // 3. Create JWT token
     const token = jwt.sign(
       {
         employee_id: user.employee_id,
         email: user.email,
-        role: user.role
+        role: user.role,
+        name: user.name
       },
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
     );
 
-    // 4. Log IP and User Agent
-    const ip_address = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-    const user_agent = req.headers['user-agent'];
-
+    const ip_address = req.headers['x-forwarded-for'] || req.socket.remoteAddress || null;
+    const user_agent = req.headers['user-agent'] || null;
     await insertLoginHistory(user.employee_id, ip_address, user_agent);
 
-    // 5. Set token in HTTP-only cookie
     res.cookie('token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === 'production', 
       sameSite: 'Strict',
-      maxAge: 24 * 60 * 60 * 1000 // 1 day
+      maxAge: 24 * 60 * 60 * 1000, 
     });
 
-    // 6. Respond
     res.status(200).json({
       message: 'Login successful',
       employee: {
         name: user.name,
         role: user.role,
-        employee_id: user.employee_id
-      }
+        employee_id: user.employee_id,
+      },
     });
+
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ error: 'Server error' });
   }
 };
 
+//================== Logout
+const logoutEmployee = (req, res) => {
+  res.clearCookie('token', {
+    httpOnly: true,
+    sameSite: 'Strict',
+    secure: true, 
+  });
+
+  res.status(200).json({ message: 'Logged out successfully' });
+};
 
 
-module.exports = { signupEmployee, loginEmployee };
+//============= Middleware
+
+const getCurrentEmployee = (req, res) => {
+  const token = req.cookies.token;
+  if (!token) return res.status(401).json({ error: 'Not authenticated' });
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    res.status(200).json({ user: decoded });
+  } catch (err) {
+    return res.status(403).json({ error: 'Invalid token' });
+  }
+};
+
+
+module.exports = { signupEmployee, loginEmployee, logoutEmployee, getCurrentEmployee };

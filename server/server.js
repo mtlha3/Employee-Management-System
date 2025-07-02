@@ -10,7 +10,6 @@ const db = require('./db');
 dotenv.config();
 const app = express();
 
-// Middlewares
 app.use(cors({
   origin: 'http://localhost:5173',
   credentials: true               
