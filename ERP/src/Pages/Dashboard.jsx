@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom"
 import { User } from "lucide-react"
 import RequestToHR from "../components/RequestToHR"
 import HRRequestResponse from "../components/HR_request_response"
+import Signup from "../components/Signup"
+import ViewEditEmployees from "../components/ViewEditEmployees"
 
 const Dashboard = () => {
   const [user, setUser] = useState(null)
@@ -58,6 +60,8 @@ const Dashboard = () => {
         <main className="flex-1 p-6 lg:p-8">
           {activeSection === "request-hr" && <RequestToHR />}
           {activeSection === "employee-requests" && <HRRequestResponse />}
+          {activeSection === "add-employee" && <Signup />}
+          {activeSection === "view-edit" && <ViewEditEmployees  />}
           {activeSection === "home" && (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">

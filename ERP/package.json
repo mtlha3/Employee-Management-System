@@ -21,6 +21,7 @@
     "react-hook-form": "^7.59.0",
     "react-router-dom": "^7.6.3",
     "react-toastify": "^11.0.5",
+    "sweetalert2": "^11.22.2",
     "yup": "^1.6.1"
   },
   "devDependencies": {

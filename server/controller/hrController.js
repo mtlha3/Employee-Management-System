@@ -1,4 +1,5 @@
 const db = require("../db");
+const pool = require("../db")
 
 const submitHrRequest = async (req, res) => {
   const { employeeId, title, requestQuery } = req.body;
@@ -80,7 +81,7 @@ const updateHRRequestStatus = async (req, res) => {
   }
 };
 
-// controller
+// Get all requests by employee_id
 const getMyHRRequests = async (req, res) => {
   try {
     const employeeId = req.user.employee_id;
@@ -93,7 +94,75 @@ const getMyHRRequests = async (req, res) => {
   }
 };
 
+//=================
+const getAllEmployees = async (req, res) => {
+  const { search } = req.query
+
+  let baseQuery = `SELECT employee_id, name, email, role, status FROM employees`
+  const values = []
+
+  if (search) {
+    baseQuery += ` WHERE employee_id::text ILIKE $1 OR name ILIKE $1`
+    values.push(`%${search}%`)
+  }
+
+  try {
+    const result = await pool.query(baseQuery, values)
+    res.status(200).json({ employees: result.rows })
+  } catch (err) {
+    console.error("Error fetching employees:", err.message)
+    res.status(500).json({ error: "Internal server error" })
+  }
+}
+
+//========================
+
+const bcrypt = require("bcryptjs")
+
+const resetEmployeePassword = async (req, res) => {
+  const { employeeId } = req.params
+
+  try {
+    const defaultPassword = "employee123"
+    const hashedPassword = await bcrypt.hash(defaultPassword, 10)
+
+    await pool.query(
+      `UPDATE employees SET password = $1 WHERE employee_id = $2`,
+      [hashedPassword, employeeId]
+    )
+
+    res.json({ message: "Password reset successfully to 'employee123'" })
+  } catch (err) {
+    console.error("Error resetting password:", err)
+    res.status(500).json({ error: "Failed to reset password" })
+  }
+}
+
+//================================
+const updateEmployee = async (req, res) => {
+  const { employeeId } = req.params
+  const { name, email, role, status } = req.body
+
+  try {
+    const result = await db.query(
+      `UPDATE employees SET 
+        name = COALESCE($1, name),
+        email = COALESCE($2, email),
+        role = COALESCE($3, role),
+        status = COALESCE($4, status)
+      WHERE employee_id = $5`,
+      [name || null, email || null, role || null, status || null, employeeId]
+    )
+    res.json({ message: 'Employee updated successfully' })
+  } catch (err) {
+    console.error("Update error:", err)
+    res.status(500).json({ error: 'Failed to update employee' })
+  }
+}
+
+
 
 module.exports = {
-  submitHrRequest, getAllHRRequests, updateHRRequestStatus, getMyHRRequests 
+  submitHrRequest, getAllHRRequests, updateHRRequestStatus, getMyHRRequests , getAllEmployees, resetEmployeePassword
+  ,updateEmployee
 };

@@ -51,8 +51,8 @@ const SidebarNav = ({ role, onNavigate  }) => {
     switch (role.toLowerCase()) {
       case "hr":
         buttons = [
-          { text: "Add Employee", action: () => navigate("/add-employee") },
-          { text: "View/Edit Employees", action: () => navigate("/view-edit") },
+          { text: "Add Employee", action: () => onNavigate("add-employee") },
+          { text: "View/Edit Employees", action: () => onNavigate("view-edit") },
           { text: "Employee Requests", action: () => onNavigate("employee-requests") },
         ]
         break

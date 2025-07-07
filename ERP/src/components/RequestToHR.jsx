@@ -100,7 +100,6 @@ const RequestToHR = () => {
   return (
     <div className="p-6 lg:p-8">
       <div className="max-w-2xl mx-auto">
-        {/* Button to trigger modal */}
         <div className="mb-6 text-right">
           <button
             onClick={() => {
@@ -113,7 +112,6 @@ const RequestToHR = () => {
           </button>
         </div>
 
-        {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl mb-4 shadow-lg">
             <MessageSquare className="w-8 h-8 text-white" />
@@ -124,7 +122,6 @@ const RequestToHR = () => {
           <p className="text-slate-600">Submit your request or query to the HR department</p>
         </div>
 
-        {/* Form */}
         <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 p-8 relative">
           {message && (
             <div
@@ -204,7 +201,6 @@ const RequestToHR = () => {
         </div>
       </div>
 
-      {/* Modal */}
       {showResponsesModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 relative">
