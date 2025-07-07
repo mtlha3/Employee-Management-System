@@ -3,19 +3,21 @@ const db = require('./index');
 
 const createHRRequestTable = `
   CREATE TABLE IF NOT EXISTS hr_requests (
-    request_id SERIAL PRIMARY KEY,
-    employee_id VARCHAR NOT NULL,
-    request_title TEXT NOT NULL,
-    request_query TEXT NOT NULL,
-    hr_response TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  request_id SERIAL PRIMARY KEY,
+  employee_id VARCHAR NOT NULL,
+  request_title TEXT NOT NULL,
+  request_query TEXT NOT NULL,
+  hr_response TEXT,
+  status VARCHAR DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT fk_employee
-      FOREIGN KEY (employee_id)
-      REFERENCES employees(employee_id)
-      ON DELETE CASCADE
-  );
+  CONSTRAINT fk_employee
+    FOREIGN KEY (employee_id)
+    REFERENCES employees(employee_id)
+    ON DELETE CASCADE
+);
+
 `;
 
 

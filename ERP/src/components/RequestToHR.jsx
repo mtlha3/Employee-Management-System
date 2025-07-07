@@ -1,5 +1,3 @@
-"use client"
-
 import { useEffect, useState } from "react"
 import axios from "axios"
 import {
@@ -20,6 +18,9 @@ const RequestToHR = () => {
   const [message, setMessage] = useState("")
   const [isError, setIsError] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showResponsesModal, setShowResponsesModal] = useState(false)
+  const [employeeRequests, setEmployeeRequests] = useState([])
+  const [loadingRequests, setLoadingRequests] = useState(false)
 
   useEffect(() => {
     const fetchEmployee = async () => {
@@ -71,10 +72,48 @@ const RequestToHR = () => {
     }
   }
 
+  const fetchEmployeeRequests = async () => {
+    setLoadingRequests(true)
+    try {
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/employees/my-requests`, {
+        withCredentials: true,
+      })
+      setEmployeeRequests(res.data.requests || [])
+    } catch (err) {
+      console.error("Error fetching employee requests:", err.message)
+    } finally {
+      setLoadingRequests(false)
+    }
+  }
+
+  const getStatusColor = (status) => {
+    switch (status?.toLowerCase()) {
+      case "approved":
+        return "bg-emerald-100 text-emerald-800"
+      case "rejected":
+        return "bg-red-100 text-red-800"
+      default:
+        return "bg-yellow-100 text-yellow-800"
+    }
+  }
+
   return (
     <div className="p-6 lg:p-8">
       <div className="max-w-2xl mx-auto">
-   
+        {/* Button to trigger modal */}
+        <div className="mb-6 text-right">
+          <button
+            onClick={() => {
+              fetchEmployeeRequests()
+              setShowResponsesModal(true)
+            }}
+            className="bg-gradient-to-r from-slate-700 to-slate-900 hover:from-slate-800 hover:to-black text-white py-2 px-4 rounded-xl shadow"
+          >
+            See Requests Response
+          </button>
+        </div>
+
+        {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl mb-4 shadow-lg">
             <MessageSquare className="w-8 h-8 text-white" />
@@ -85,14 +124,14 @@ const RequestToHR = () => {
           <p className="text-slate-600">Submit your request or query to the HR department</p>
         </div>
 
+        {/* Form */}
         <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 p-8 relative">
           {message && (
             <div
-              className={`mb-6 p-4 rounded-xl border-l-4 ${
-                isError
+              className={`mb-6 p-4 rounded-xl border-l-4 ${isError
                   ? "bg-red-50 border-red-400 text-red-800"
                   : "bg-emerald-50 border-emerald-400 text-emerald-800"
-              } shadow-sm relative z-10`}
+                } shadow-sm relative z-10`}
             >
               <div className="flex items-center">
                 {isError ? (
@@ -106,7 +145,6 @@ const RequestToHR = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-          
             <div className="group">
               <label className="block text-sm font-semibold text-slate-700 mb-2">Request Title</label>
               <div className="relative">
@@ -165,6 +203,44 @@ const RequestToHR = () => {
           </form>
         </div>
       </div>
+
+      {/* Modal */}
+      {showResponsesModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 relative">
+            <button
+              onClick={() => setShowResponsesModal(false)}
+              className="absolute top-4 right-4 text-slate-600 hover:text-red-500"
+            >
+              <XCircle className="w-6 h-6" />
+            </button>
+            <h2 className="text-xl font-bold text-slate-800 mb-4">Your Previous Requests</h2>
+
+            {loadingRequests ? (
+              <p className="text-slate-600">Loading...</p>
+            ) : employeeRequests.length === 0 ? (
+              <p className="text-slate-500">No requests submitted yet.</p>
+            ) : (
+              <div className="space-y-4">
+                {employeeRequests.map((req, idx) => (
+                  <div
+                    key={idx}
+                    className="border border-slate-200 rounded-xl p-4 bg-slate-50"
+                  >
+                    <h3 className="font-semibold text-slate-800">{req.title}</h3>
+                    <p className="text-slate-600 text-sm mb-2 whitespace-pre-line">{req.request_query}</p>
+                    <span
+                      className={`inline-block px-3 py-1 text-xs rounded-full font-medium ${getStatusColor(req.status)}`}
+                    >
+                      {req.status || "Pending"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

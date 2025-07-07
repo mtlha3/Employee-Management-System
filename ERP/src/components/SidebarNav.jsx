@@ -53,7 +53,7 @@ const SidebarNav = ({ role, onNavigate  }) => {
         buttons = [
           { text: "Add Employee", action: () => navigate("/add-employee") },
           { text: "View/Edit Employees", action: () => navigate("/view-edit") },
-          { text: "Employee Requests", action: () => navigate("/employee-requests") },
+          { text: "Employee Requests", action: () => onNavigate("employee-requests") },
         ]
         break
       case "frontend developer":

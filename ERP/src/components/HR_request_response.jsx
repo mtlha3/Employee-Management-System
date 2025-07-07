@@ -18,7 +18,7 @@ const HR_request_response = () => {
 
   const fetchRequests = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/hr/requests`, {
+      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/employees/requests`, {
         withCredentials: true,
       })
       setRequests(response.data.requests || [])
@@ -30,44 +30,46 @@ const HR_request_response = () => {
     }
   }
 
+
   const handleRequestClick = (request) => {
     setSelectedRequest(request)
     setIsModalOpen(true)
   }
 
-  const handleApprove = async () => {
-    try {
-      await axios.put(
-        `${import.meta.env.VITE_API_BASE_URL}/api/hr/requests/${selectedRequest.id}/approve`,
-        {},
-        { withCredentials: true },
-      )
-      setMessage("Request approved successfully!")
-      setIsError(false)
-      setIsModalOpen(false)
-      fetchRequests()
-    } catch (error) {
-      setMessage("Failed to approve request")
-      setIsError(true)
-    }
+const handleApprove = async () => {
+  try {
+    await axios.put(
+      `${import.meta.env.VITE_API_BASE_URL}/api/employees/requests/${selectedRequest.id}/status`,
+      { status: "approved" },
+      { withCredentials: true }
+    )
+    setMessage("Request approved successfully!")
+    setIsError(false)
+    setIsModalOpen(false)
+    fetchRequests()
+  } catch (error) {
+    setMessage("Failed to approve request")
+    setIsError(true)
   }
+}
 
-  const handleReject = async () => {
-    try {
-      await axios.put(
-        `${import.meta.env.VITE_API_BASE_URL}/api/hr/requests/${selectedRequest.id}/reject`,
-        {},
-        { withCredentials: true },
-      )
-      setMessage("Request rejected successfully!")
-      setIsError(false)
-      setIsModalOpen(false)
-      fetchRequests()
-    } catch (error) {
-      setMessage("Failed to reject request")
-      setIsError(true)
-    }
+const handleReject = async () => {
+  try {
+    await axios.put(
+      `${import.meta.env.VITE_API_BASE_URL}/api/employees/requests/${selectedRequest.id}/status`,
+      { status: "rejected" },
+      { withCredentials: true }
+    )
+    setMessage("Request rejected successfully!")
+    setIsError(false)
+    setIsModalOpen(false)
+    fetchRequests()
+  } catch (error) {
+    setMessage("Failed to reject request")
+    setIsError(true)
   }
+}
+
 
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
@@ -211,9 +213,8 @@ const HR_request_response = () => {
                       </div>
                       <div>
                         <h3 className="font-semibold text-slate-800 group-hover:text-emerald-600 transition-colors">
-                          Request For Employee ID: {request.employeeId}
+                          Request From Employee ID: {request.employee_id}
                         </h3>
-                        <p className="text-sm text-slate-600">{request.employeeName || "Unknown Employee"}</p>
                         <p className="text-sm text-slate-500 mt-1">{request.title}</p>
                       </div>
                     </div>
@@ -272,17 +273,12 @@ const HR_request_response = () => {
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">Request Details</label>
                 <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 min-h-[120px]">
-                  <p className="text-slate-700 whitespace-pre-wrap">{selectedRequest.requestQuery}</p>
+                  <p className="text-slate-700 whitespace-pre-wrap">{selectedRequest.request_query}</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Employee Name</label>
-                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                    <p className="text-slate-800">{selectedRequest.employeeName || "N/A"}</p>
-                  </div>
-                </div>
+              
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-2">Current Status</label>
                   <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">

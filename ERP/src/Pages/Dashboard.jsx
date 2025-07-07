@@ -4,6 +4,7 @@ import SidebarNav from "../components/SidebarNav"
 import { useNavigate } from "react-router-dom"
 import { User } from "lucide-react"
 import RequestToHR from "../components/RequestToHR"
+import HRRequestResponse from "../components/HR_request_response"
 
 const Dashboard = () => {
   const [user, setUser] = useState(null)
@@ -55,9 +56,9 @@ const Dashboard = () => {
       <SidebarNav role={user.role} onNavigate={setActiveSection} />
       <div className="flex-1 flex flex-col min-h-screen lg:ml-0">
         <main className="flex-1 p-6 lg:p-8">
-          {activeSection === "request-hr" ? (
-            <RequestToHR />
-          ) : (
+          {activeSection === "request-hr" && <RequestToHR />}
+          {activeSection === "employee-requests" && <HRRequestResponse />}
+          {activeSection === "home" && (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
                 <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-3xl mb-6 shadow-lg">
@@ -73,6 +74,7 @@ const Dashboard = () => {
               </div>
             </div>
           )}
+
         </main>
       </div>
     </div>
