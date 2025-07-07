@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const cookieParser = require('cookie-parser'); 
 const employeeRoutes = require('./routes/employeeRoutes');
+const hrRoutes = require('./routes/hrRoutes');
 const db = require('./db');
 
 dotenv.config();
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use('/api/employees', employeeRoutes);
+app.use("/api/employees", hrRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

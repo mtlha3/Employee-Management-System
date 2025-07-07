@@ -15,7 +15,7 @@ import {
   X,
 } from "lucide-react"
 
-const SidebarNav = ({ role }) => {
+const SidebarNav = ({ role, onNavigate  }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const navigate = useNavigate()
 
@@ -62,20 +62,20 @@ const SidebarNav = ({ role }) => {
       case "devops":
         buttons = [
           { text: "Today's Tasks", action: () => navigate("/tasks") },
-          { text: "Request to HR", action: () => navigate("/request-hr") },
+          { text: "Request to HR", action: () => onNavigate("request-hr"),  },
         ]
         break
       case "team lead":
         buttons = [
           { text: "Assign Tasks", action: () => navigate("/assign-task") },
           { text: "Today's Tasks", action: () => navigate("/tasks") },
-          { text: "Request to HR", action: () => navigate("/request-hr") },
+          { text: "Request to HR", action: () => onNavigate("request-hr"),},
         ]
         break
       case "project manager":
         buttons = [
           { text: "Create Project Team", action: () => navigate("/create-team") },
-          { text: "Request to HR", action: () => navigate("/request-hr") },
+          { text: "Request to HR", action: () => onNavigate("request-hr"), },
         ]
         break
       default:
