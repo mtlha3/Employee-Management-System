@@ -15,7 +15,7 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 // SQL for project table
 const createProjectTable = `
   CREATE TABLE IF NOT EXISTS projects (
-    project_id UUID PRIMARY KEY,
+    project_id VARCHAR(5) PRIMARY KEY,
     project_name VARCHAR(255) NOT NULL,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,

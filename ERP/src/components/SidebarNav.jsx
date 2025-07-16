@@ -76,8 +76,8 @@ const SidebarNav = ({ role, onNavigate  }) => {
         break
       case "project manager":
         buttons = [
-          { text: "Create a Project", action: () => navigate("/create-project") },
-          { text: "View Project Progress", action: () => navigate("/view-project") },
+          { text: "Create a Project", action: () => onNavigate("create-project") },
+          { text: "View Project Progress", action: () => onNavigate("progress-project") },
           { text: "Request to HR", action: () => onNavigate("request-hr"), },
         ]
         break

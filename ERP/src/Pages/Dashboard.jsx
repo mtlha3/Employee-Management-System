@@ -7,6 +7,8 @@ import RequestToHR from "../components/RequestToHR"
 import HRRequestResponse from "../components/HR_request_response"
 import Signup from "../components/Signup"
 import ViewEditEmployees from "../components/ViewEditEmployees"
+import CreateProject from "../components/CreateProject"
+import ProjectProgress from "../components/ProjectProgress"
 
 const Dashboard = () => {
   const [user, setUser] = useState(null)
@@ -62,6 +64,8 @@ const Dashboard = () => {
           {activeSection === "employee-requests" && <HRRequestResponse />}
           {activeSection === "add-employee" && <Signup />}
           {activeSection === "view-edit" && <ViewEditEmployees  />}
+          {activeSection === "create-project" && <CreateProject/>}
+          {activeSection === "progress-project" && <ProjectProgress/>}
           {activeSection === "home" && (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
