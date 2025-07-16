@@ -1,15 +1,23 @@
-const express = require("express");
+import express from "express";
+import {
+  submitHrRequest,
+  getAllHRRequests,
+  updateHRRequestStatus,
+  getMyHRRequests,
+  getAllEmployees,
+  resetEmployeePassword,
+  updateEmployee
+} from "../controller/hrController.js";
+import { authenticateToken } from "../middleware/authMiddleware.js";
+
 const router = express.Router();
-const { submitHrRequest, getAllHRRequests, updateHRRequestStatus, getMyHRRequests,getAllEmployees,resetEmployeePassword, updateEmployee } = require("../controller/hrController");
-const verifyEmployeeAuth = require("../middleware/authMiddleware")
 
 router.post("/request-hr", submitHrRequest);
-router.get('/requests', getAllHRRequests);
+router.get("/requests", getAllHRRequests);
 router.put("/requests/:id/status", updateHRRequestStatus);
-router.get("/my-requests", verifyEmployeeAuth, getMyHRRequests);
-router.get("/employees", verifyEmployeeAuth, getAllEmployees);
-router.put("/reset-password/:employeeId", verifyEmployeeAuth, resetEmployeePassword)
-router.put("/update/:employeeId", verifyEmployeeAuth, updateEmployee)
+router.get("/my-requests", authenticateToken, getMyHRRequests);
+router.get("/employees", authenticateToken, getAllEmployees);
+router.put("/reset-password/:employeeId", authenticateToken, resetEmployeePassword);
+router.put("/update/:employeeId", authenticateToken, updateEmployee);
 
-
-module.exports = router;
+export default router;

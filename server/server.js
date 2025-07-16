@@ -1,27 +1,32 @@
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
 
-const express = require('express');
-const dotenv = require('dotenv');
-const cors = require('cors');
-const cookieParser = require('cookie-parser'); 
-const employeeRoutes = require('./routes/employeeRoutes');
-const hrRoutes = require('./routes/hrRoutes');
-const db = require('./db');
+import express from "express";
+import dotenv from "dotenv";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+
+import pool from "./db/index.js";
+import employeeRoutes from "./routes/employeeRoutes.js";
+import hrRoutes from "./routes/hrRoutes.js";
+import projectRoutes from "./routes/projectRoutes.js";
 
 dotenv.config();
+
 const app = express();
 
 app.use(cors({
-  origin: 'http://localhost:5173',
-  credentials: true               
+  origin: "http://localhost:5173",  // ✅ frontend domain
+  credentials: true
 }));
 app.use(express.json());
 app.use(cookieParser());
 
-app.use('/api/employees', employeeRoutes);
+// Routes
+app.use("/api/employees", employeeRoutes);
 app.use("/api/employees", hrRoutes);
+app.use("/api/projects", projectRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });

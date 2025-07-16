@@ -1,16 +1,16 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
 
-const authenticateToken = (req, res, next) => {
+export const authenticateToken = (req, res, next) => {
   const token = req.cookies.token;
-  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+
+  if (!token) return res.status(401).json({ error: "Unauthorized" });
 
   try {
     const user = jwt.verify(token, process.env.JWT_SECRET);
     req.user = user;
     next();
   } catch (err) {
-    return res.status(403).json({ error: 'Invalid token' });
+    console.error("JWT verification error:", err.message); 
+    return res.status(403).json({ error: "Invalid token" });
   }
 };
-
-module.exports = authenticateToken;

@@ -1,8 +1,8 @@
-const db = require('../db');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+import pool from '../db/index.js';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
-//============ Generating Employee ID
+//============ Generate Unique Employee ID ============
 
 const generateUniqueEmployeeId = async () => {
   const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -15,7 +15,7 @@ const generateUniqueEmployeeId = async () => {
     const randomDigits = Math.floor(1000 + Math.random() * 9000); 
     newId = randomLetters + randomDigits;
 
-    const check = await db.query('SELECT employee_id FROM employees WHERE employee_id = $1', [newId]);
+    const check = await pool.query('SELECT employee_id FROM employees WHERE employee_id = $1', [newId]);
     if (check.rows.length === 0) {
       unique = true;
     }
@@ -24,8 +24,9 @@ const generateUniqueEmployeeId = async () => {
   return newId;
 };
 
-//====================Signup Employee
-const signupEmployee = async (req, res) => {
+//==================== Signup ====================
+
+export const signupEmployee = async (req, res) => {
   const { name, email, password, role, status } = req.body;
 
   try {
@@ -38,7 +39,7 @@ const signupEmployee = async (req, res) => {
       RETURNING *;
     `;
 
-    const result = await db.query(query, [employee_id, name, email, hashedPassword, role, status || 'active']);
+    const result = await pool.query(query, [employee_id, name, email, hashedPassword, role, status || 'active']);
     res.status(201).json({ message: 'Employee registered successfully!', employee: result.rows[0] });
   } catch (err) {
     console.error('Signup error:', err);
@@ -50,28 +51,26 @@ const signupEmployee = async (req, res) => {
   }
 };
 
-
-//=============== Login and maintain sessions
+//==================== Login ====================
 
 const insertLoginHistory = async (employee_id, ip_address, user_agent) => {
   const query = `
     INSERT INTO login_history (employee_id, ip_address, user_agent)
     VALUES ($1, $2, $3)
   `;
-  await db.query(query, [employee_id, ip_address, user_agent]);
+  await pool.query(query, [employee_id, ip_address, user_agent]);
 };
 
-const loginEmployee = async (req, res) => {
+export const loginEmployee = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const result = await db.query('SELECT * FROM employees WHERE email = $1', [email]);
+    const result = await pool.query('SELECT * FROM employees WHERE email = $1', [email]);
     if (result.rows.length === 0) {
       return res.status(400).json({ error: 'Invalid email or password.' });
     }
 
     const user = result.rows[0];
-
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ error: 'Invalid email or password.' });
@@ -94,9 +93,9 @@ const loginEmployee = async (req, res) => {
 
     res.cookie('token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', 
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'Strict',
-      maxAge: 24 * 60 * 60 * 1000, 
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
 
     res.status(200).json({
@@ -114,21 +113,21 @@ const loginEmployee = async (req, res) => {
   }
 };
 
-//================== Logout
-const logoutEmployee = (req, res) => {
+//==================== Logout ====================
+
+export const logoutEmployee = (req, res) => {
   res.clearCookie('token', {
     httpOnly: true,
     sameSite: 'Strict',
-    secure: true, 
+    secure: true,
   });
 
   res.status(200).json({ message: 'Logged out successfully' });
 };
 
+//==================== Current Employee ====================
 
-//============= Middleware
-
-const getCurrentEmployee = (req, res) => {
+export const getCurrentEmployee = (req, res) => {
   const token = req.cookies.token;
   if (!token) return res.status(401).json({ error: 'Not authenticated' });
 
@@ -139,6 +138,3 @@ const getCurrentEmployee = (req, res) => {
     return res.status(403).json({ error: 'Invalid token' });
   }
 };
-
-
-module.exports = { signupEmployee, loginEmployee, logoutEmployee, getCurrentEmployee };

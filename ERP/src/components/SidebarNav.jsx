@@ -11,6 +11,7 @@ import {
   MessageSquare,
   UserCheck,
   FolderPlus,
+  BarChart2,
   Menu,
   X,
 } from "lucide-react"
@@ -41,7 +42,8 @@ const SidebarNav = ({ role, onNavigate  }) => {
     if (buttonText.includes("Tasks")) return CheckSquare
     if (buttonText.includes("Request to HR")) return MessageSquare
     if (buttonText.includes("Assign Tasks")) return UserCheck
-    if (buttonText.includes("Create Project Team")) return FolderPlus
+    if (buttonText.includes("Create a Project")) return FolderPlus
+    if (buttonText.includes("View Project Progress")) return BarChart2
     return User
   }
 
@@ -74,7 +76,8 @@ const SidebarNav = ({ role, onNavigate  }) => {
         break
       case "project manager":
         buttons = [
-          { text: "Create Project Team", action: () => navigate("/create-team") },
+          { text: "Create a Project", action: () => navigate("/create-project") },
+          { text: "View Project Progress", action: () => navigate("/view-project") },
           { text: "Request to HR", action: () => onNavigate("request-hr"), },
         ]
         break

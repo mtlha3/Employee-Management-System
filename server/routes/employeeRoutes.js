@@ -1,10 +1,16 @@
-const express = require('express');
+import express from "express";
+import {
+  signupEmployee,
+  loginEmployee,
+  logoutEmployee,
+  getCurrentEmployee
+} from "../controller/employeeController.js";
+
 const router = express.Router();
-const { signupEmployee,  loginEmployee, logoutEmployee , getCurrentEmployee } = require('../controller/employeeController');
 
-router.post('/signup', signupEmployee);
-router.post('/login', loginEmployee); 
-router.post('/logout', logoutEmployee);
-router.get('/me', getCurrentEmployee);
+router.post("/signup", signupEmployee);
+router.post("/login", loginEmployee);
+router.post("/logout", logoutEmployee);
+router.get("/me", getCurrentEmployee);
 
-module.exports = router;
+export default router;
