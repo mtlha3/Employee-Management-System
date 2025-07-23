@@ -1,54 +1,29 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const hrRequestSchema = new mongoose.Schema({
-  request_id: {
-    type: Number,
-    unique: true,
-    required: true,
-  },
-  employee_id: {
+  employeeId: {
     type: String,
     required: true,
   },
-  request_title: {
+  requestTitle: {
     type: String,
     required: true,
   },
-  request_query: {
+  requestQuery: {
     type: String,
     required: true,
-  },
-  hr_response: {
-    type: String,
-    default: '',
   },
   status: {
     type: String,
+    enum: ['pending', 'approved', 'rejected'],
     default: 'pending',
-    enum: ['pending', 'resolved', 'rejected'],
   },
-  created_at: {
+  createdAt: {
     type: Date,
     default: Date.now,
   },
-  updated_at: {
-    type: Date,
-    default: Date.now,
-  },
+  updatedAt: Date,
 });
 
-hrRequestSchema.pre('save', async function (next) {
-  if (!this.isNew) return next();
-  const Counter = mongoose.model('Counter');
-  const counter = await Counter.findOneAndUpdate(
-    { _id: 'hr_request_id' },
-    { $inc: { seq: 1 } },
-    { new: true, upsert: true }
-  );
-  this.request_id = counter.seq;
-  next();
-});
-
-const HRRequest = mongoose.model('HRRequest', hrRequestSchema);
-
-module.exports = HRRequest;
+const HrRequest = mongoose.model('HrRequest', hrRequestSchema);
+export default HrRequest;

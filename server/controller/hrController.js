@@ -1,19 +1,23 @@
 import bcrypt from "bcryptjs";
+import HrRequest from "../models/hr_requests.js";
+import Employee from "../models/EmployeeInfo.js";
 
 //===================== HR REQUESTS =====================//
 
 export const submitHrRequest = async (req, res) => {
-  const { employeeId, title, requestQuery } = req.body;
+  const { employeeId, requestTitle, requestQuery } = req.body;
 
-  if (!employeeId || !title || !requestQuery) {
+  if (!employeeId || !requestTitle || !requestQuery) {
     return res.status(400).json({ error: "All fields are required." });
   }
 
   try {
-    await pool.query(
-      `INSERT INTO hr_requests (employee_id, request_title, request_query) VALUES ($1, $2, $3)`,
-      [employeeId, title, requestQuery]
-    );
+    await HrRequest.create({
+      employeeId,
+      requestTitle,
+      requestQuery,
+    });
+
 
     res.status(201).json({ message: "Request submitted successfully!" });
   } catch (err) {
@@ -22,29 +26,28 @@ export const submitHrRequest = async (req, res) => {
   }
 };
 
+//=====================
 export const getAllHRRequests = async (req, res) => {
   try {
-    const query = `
-      SELECT 
-        hr.request_id AS id,
-        hr.employee_id,
-        e.name AS employee_name,
-        hr.request_title AS title,
-        hr.request_query,
-        hr.status,
-        hr.created_at
-      FROM hr_requests hr
-      LEFT JOIN employees e ON hr.employee_id = e.employee_id
-      ORDER BY hr.created_at DESC;
-    `;
+    const requests = await HrRequest.find().sort({ createdAt: -1 });
 
-    const { rows } = await pool.query(query);
-    res.status(200).json({ requests: rows });
+    const formatted = requests.map((req) => ({
+      id: req._id,
+      employee_id: req.employeeId,
+      title: req.requestTitle,
+      request_query: req.requestQuery,
+      status: req.status,
+      created_at: req.createdAt,
+    }));
+
+    res.status(200).json({ requests: formatted });
   } catch (error) {
     console.error("Error fetching HR requests:", error);
     res.status(500).json({ error: "Failed to fetch HR requests" });
   }
 };
+
+//=========================
 
 export const updateHRRequestStatus = async (req, res) => {
   const { id } = req.params;
@@ -55,21 +58,17 @@ export const updateHRRequestStatus = async (req, res) => {
   }
 
   try {
-    const query = `
-      UPDATE hr_requests
-      SET status = $1, updated_at = CURRENT_TIMESTAMP
-      WHERE request_id = $2
-      RETURNING *;
-    `;
-    const values = [status.toLowerCase(), id];
+    const updated = await HrRequest.findByIdAndUpdate(
+      id,
+      { status: status.toLowerCase(), updated_at: new Date() },
+      { new: true }
+    );
 
-    const { rows } = await pool.query(query, values);
-
-    if (rows.length === 0) {
+    if (!updated) {
       return res.status(404).json({ error: "Request not found" });
     }
 
-    res.status(200).json({ message: "Status updated successfully", request: rows[0] });
+    res.status(200).json({ message: "Status updated successfully", request: updated });
   } catch (error) {
     console.error("Error updating request status:", error);
     res.status(500).json({ error: "Failed to update request status" });
@@ -78,15 +77,17 @@ export const updateHRRequestStatus = async (req, res) => {
 
 export const getMyHRRequests = async (req, res) => {
   try {
-    const employeeId = req.user.employee_id;
-    const query = `
-      SELECT request_id, request_title, request_query, status 
-      FROM hr_requests 
-      WHERE employee_id = $1 
-      ORDER BY created_at DESC;
-    `;
-    const { rows } = await pool.query(query, [employeeId]);
-    res.status(200).json({ requests: rows });
+    const employeeId = req.user.employeeId;
+    const requests = await HrRequest.find({ employee_id: employeeId }).sort({ created_at: -1 });
+
+    const formatted = requests.map((req) => ({
+      id: req._id,
+      title: req.requestTitle,
+      request_query: req.requestQuery,
+      status: req.status,
+    }));
+
+    res.status(200).json({ requests: formatted });
   } catch (error) {
     console.error("Error getting HR requests:", error);
     res.status(500).json({ error: "Failed to get HR requests" });
@@ -98,17 +99,18 @@ export const getMyHRRequests = async (req, res) => {
 export const getAllEmployees = async (req, res) => {
   const { search } = req.query;
 
-  let baseQuery = `SELECT employee_id, name, email, role, status FROM employees`;
-  const values = [];
-
-  if (search) {
-    baseQuery += ` WHERE employee_id::text ILIKE $1 OR name ILIKE $1`;
-    values.push(`%${search}%`);
-  }
-
   try {
-    const result = await pool.query(baseQuery, values);
-    res.status(200).json({ employees: result.rows });
+    const query = search
+      ? {
+        $or: [
+          { employee_id: { $regex: search, $options: "i" } },
+          { name: { $regex: search, $options: "i" } },
+        ],
+      }
+      : {};
+
+    const employees = await Employee.find(query, "employee_id name email role status");
+    res.status(200).json({ employees });
   } catch (err) {
     console.error("Error fetching employees:", err.message);
     res.status(500).json({ error: "Internal server error" });
@@ -122,10 +124,14 @@ export const resetEmployeePassword = async (req, res) => {
     const defaultPassword = "employee123";
     const hashedPassword = await bcrypt.hash(defaultPassword, 10);
 
-    await pool.query(
-      `UPDATE employees SET password = $1 WHERE employee_id = $2`,
-      [hashedPassword, employeeId]
+    const updated = await Employee.findOneAndUpdate(
+      { employee_id: employeeId },
+      { password: hashedPassword }
     );
+
+    if (!updated) {
+      return res.status(404).json({ error: "Employee not found" });
+    }
 
     res.json({ message: "Password reset successfully to 'employee123'" });
   } catch (err) {
@@ -139,17 +145,20 @@ export const updateEmployee = async (req, res) => {
   const { name, email, role, status } = req.body;
 
   try {
-    await pool.query(
-      `
-        UPDATE employees SET 
-          name = COALESCE($1, name),
-          email = COALESCE($2, email),
-          role = COALESCE($3, role),
-          status = COALESCE($4, status)
-        WHERE employee_id = $5;
-      `,
-      [name || null, email || null, role || null, status || null, employeeId]
+    const updated = await Employee.findOneAndUpdate(
+      { employee_id: employeeId },
+      {
+        ...(name && { name }),
+        ...(email && { email }),
+        ...(role && { role }),
+        ...(status && { status }),
+      },
+      { new: true }
     );
+
+    if (!updated) {
+      return res.status(404).json({ error: "Employee not found" });
+    }
 
     res.json({ message: "Employee updated successfully" });
   } catch (err) {

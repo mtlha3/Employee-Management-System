@@ -11,7 +11,7 @@ import {
 
 const RequestToHR = () => {
   const [formData, setFormData] = useState({
-    title: "",
+    requestTitle: "",
     requestQuery: "",
     employeeId: "",
   })
@@ -60,7 +60,7 @@ const RequestToHR = () => {
       setIsError(false)
       setFormData((prev) => ({
         ...prev,
-        title: "",
+         requestTitle: "",
         requestQuery: "",
       }))
     } catch (error) {
@@ -126,8 +126,8 @@ const RequestToHR = () => {
           {message && (
             <div
               className={`mb-6 p-4 rounded-xl border-l-4 ${isError
-                  ? "bg-red-50 border-red-400 text-red-800"
-                  : "bg-emerald-50 border-emerald-400 text-emerald-800"
+                ? "bg-red-50 border-red-400 text-red-800"
+                : "bg-emerald-50 border-emerald-400 text-emerald-800"
                 } shadow-sm relative z-10`}
             >
               <div className="flex items-center">
@@ -149,9 +149,9 @@ const RequestToHR = () => {
                   <FileText className="h-5 w-5 text-slate-400" />
                 </div>
                 <input
-                  name="title"
-                  placeholder="Enter request title"
-                  value={formData.title}
+                  name="requestTitle"
+                   placeholder="Title of your request..."
+                  value={formData.requestTitle}
                   onChange={handleChange}
                   required
                   className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl bg-white/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder-slate-400 text-slate-700"
