@@ -1,4 +1,3 @@
-import db from "../db/index.js";
 
 // Helper to generate random 5-character ID
 const generateProjectId = () => {

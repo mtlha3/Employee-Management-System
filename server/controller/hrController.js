@@ -1,4 +1,3 @@
-import pool from "../db/index.js";
 import bcrypt from "bcryptjs";
 
 //===================== HR REQUESTS =====================//

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const employeeSchema = new mongoose.Schema({
   employee_id: {
@@ -28,7 +28,7 @@ const employeeSchema = new mongoose.Schema({
   status: {
     type: String,
     default: 'active',
-    enum: ['active', 'inactive'],
+    enum: ['active', 'inactive', 'suspended'],
   },
   created_at: {
     type: Date,
@@ -37,5 +37,4 @@ const employeeSchema = new mongoose.Schema({
 });
 
 const Employee = mongoose.model('Employee', employeeSchema);
-
-module.exports = Employee;
+export default Employee;

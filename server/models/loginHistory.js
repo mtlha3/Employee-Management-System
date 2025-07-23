@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const loginHistorySchema = new mongoose.Schema({
   employee_id: {
@@ -19,5 +19,4 @@ const loginHistorySchema = new mongoose.Schema({
 });
 
 const LoginHistory = mongoose.model('LoginHistory', loginHistorySchema);
-
-module.exports = LoginHistory;
+export default LoginHistory;
