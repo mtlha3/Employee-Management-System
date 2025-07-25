@@ -10,6 +10,8 @@ const TeamLeadDashboard = () => {
   const [projectDevelopers, setProjectDevelopers] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
 
+    const API = import.meta.env.VITE_API_BASE_URL
+
   useEffect(() => {
     fetchProjects();
     fetchEmployees();
@@ -17,7 +19,7 @@ const TeamLeadDashboard = () => {
 
   const fetchProjects = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/projects/team-lead/projects", {
+      const res = await axios.get(`${API}/api/projects/team-lead/projects`, {
         withCredentials: true,
       });
       setProjects(res.data.projects);
@@ -28,7 +30,7 @@ const TeamLeadDashboard = () => {
 
   const fetchEmployees = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/employees/all");
+      const res = await axios.get(`${API}/api/employees/all`);
       setEmployees(res.data.employees);
     } catch (err) {
       console.error("Error fetching employees:", err);
@@ -37,7 +39,7 @@ const TeamLeadDashboard = () => {
 
   const fetchDevelopersForProject = async (projectId) => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/projects/projects/${projectId}/developers`);
+      const res = await axios.get(`${API}/api/projects/projects/${projectId}/developers`);
       setProjectDevelopers((prev) => ({ ...prev, [projectId]: res.data.developers }));
     } catch (err) {
       console.error("Error fetching developers:", err);
@@ -65,7 +67,7 @@ const TeamLeadDashboard = () => {
     const developers = selectedDevelopers[projectId] || [];
     try {
       await axios.put(
-        `http://localhost:5000/api/projects/${projectId}/assign-developers`,
+        `${API}/api/projects/${projectId}/assign-developers`,
         { developers },
         { withCredentials: true }
       );

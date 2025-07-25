@@ -136,7 +136,7 @@ export const getCurrentEmployee = (req, res) => {
   }
 };
 
-
+//==================== Get Employee by Team Lead Role ====================
 export const getTeamLeads = async (req, res) => {
   try {
     const leads = await Employee.find({ role: "Team Lead" }, "employee_id name role");
@@ -148,6 +148,7 @@ export const getTeamLeads = async (req, res) => {
 };
 
 
+//==================== Get All Employees ====================
 export const getAllEmployees = async (req, res) => {
   try {
     const employees = await Employee.find({}, { employee_id: 1, name: 1, role: 1 });

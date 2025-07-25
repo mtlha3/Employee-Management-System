@@ -1,4 +1,3 @@
-// routes/projectRoutes.js
 import express from "express";
 import { createProject, getAllProjects, assignTeamLead,getProjectsForTeamLead, assignDevelopers, getProjectDevelopers } from "../controller/ProjectController.js";
 import { getTeamLeads } from "../controller/employeeController.js";

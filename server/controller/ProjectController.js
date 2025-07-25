@@ -9,6 +9,8 @@ const generateProjectId = () => {
   return id;
 };
 
+
+//==================== Create Project ====================
 export const createProject = async (req, res) => {
   const { project_name, start_date, end_date } = req.body;
 
@@ -45,6 +47,9 @@ export const createProject = async (req, res) => {
   }
 };
 
+
+//==================== Get All Project ====================
+
 export const getAllProjects = async (req, res) => {
   try {
     const projects = await Project.find()
@@ -58,7 +63,7 @@ export const getAllProjects = async (req, res) => {
   }
 };
 
-
+//==================== Assign Team Lead ====================
 export const assignTeamLead = async (req, res) => {
   const { projectId } = req.params;
   const { employee_id, name, role } = req.body;
@@ -84,6 +89,7 @@ export const assignTeamLead = async (req, res) => {
 };
 
 
+//==================== Team Lead Projects ====================
 export const getProjectsForTeamLead = async (req, res) => {
   const team_lead_id = req.user?.employee_id;
 
@@ -112,6 +118,7 @@ export const getProjectsForTeamLead = async (req, res) => {
   }
 };
 
+//==================== Assign Developers to Project ====================
 export const assignDevelopers = async (req, res) => {
   const { projectId } = req.params;
   const { developers } = req.body;
@@ -123,11 +130,9 @@ export const assignDevelopers = async (req, res) => {
       return res.status(404).json({ error: "Project not found" });
     }
 
-    // Filter out already added developers
     const existingIds = new Set(project.developers.map(dev => dev.employee_id));
     const newDevelopers = developers.filter(dev => !existingIds.has(dev.employee_id));
 
-    // Append new ones
     project.developers.push(...newDevelopers);
 
     const updatedProject = await project.save();
@@ -139,7 +144,7 @@ export const assignDevelopers = async (req, res) => {
   }
 };
 
-
+//==================== Get Developer Working on Project ====================
 export const getProjectDevelopers = async (req, res) => {
   const { projectId } = req.params;
 

@@ -47,7 +47,7 @@ export const getAllHRRequests = async (req, res) => {
   }
 };
 
-//=========================
+//==================== HR Status Update For Request ====================
 
 export const updateHRRequestStatus = async (req, res) => {
   const { id } = req.params;
@@ -75,6 +75,8 @@ export const updateHRRequestStatus = async (req, res) => {
   }
 };
 
+
+//==================== Get My Request ====================
 export const getMyHRRequests = async (req, res) => {
   try {
     const employeeId = req.user.employeeId;
@@ -140,6 +142,8 @@ export const resetEmployeePassword = async (req, res) => {
   }
 };
 
+
+//==================== Update Employee ====================
 export const updateEmployee = async (req, res) => {
   const { employeeId } = req.params;
   const { name, email, role, status } = req.body;
