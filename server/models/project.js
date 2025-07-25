@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const projectSchema = new mongoose.Schema({
   project_id: {
@@ -29,12 +29,23 @@ const projectSchema = new mongoose.Schema({
     required: true,
     maxlength: 255,
   },
+  team_lead: {
+    employee_id: String,
+    name: String,
+    role: String,
+  },
+  developers: [
+    {
+      employee_id: String,
+      name: String,
+      role: String,
+    },
+  ],
   created_at: {
     type: Date,
     default: Date.now,
   },
-});
+})
 
 const Project = mongoose.model('Project', projectSchema);
-
 export default Project;

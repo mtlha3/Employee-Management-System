@@ -1,4 +1,5 @@
-import Project from '../models/Project.js';
+import Project from '../models/project.js';
+import User from '../models/employeeInfo.js'
 
 const generateProjectId = () => {
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -55,5 +56,30 @@ export const getAllProjects = async (req, res) => {
   } catch (error) {
     console.error("Error fetching projects:", error);
     res.status(500).json({ error: "Failed to fetch projects" });
+  }
+};
+
+
+export const assignTeamLead = async (req, res) => {
+  const { projectId } = req.params;
+  const { employee_id, name, role } = req.body;
+
+  if (!employee_id || !name || !role) {
+    return res.status(400).json({ error: "Team lead data incomplete" });
+  }
+
+  try {
+    const updatedProject = await Project.findOneAndUpdate(
+      { project_id: projectId },
+      { team_lead: { employee_id, name, role } },
+      { new: true }
+    );
+
+    if (!updatedProject) return res.status(404).json({ error: "Project not found" });
+
+    res.status(200).json({ message: "Team lead assigned", project: updatedProject });
+  } catch (err) {
+    console.error("Assign team lead error:", err);
+    res.status(500).json({ error: "Failed to assign team lead" });
   }
 };

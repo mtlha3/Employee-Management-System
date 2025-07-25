@@ -135,3 +135,14 @@ export const getCurrentEmployee = (req, res) => {
     return res.status(403).json({ error: 'Invalid token' });
   }
 };
+
+
+export const getTeamLeads = async (req, res) => {
+  try {
+    const leads = await Employee.find({ role: "Team Lead" }, "employee_id name role");
+    res.status(200).json({ leads });
+  } catch (err) {
+    console.error("Error fetching team leads:", err);
+    res.status(500).json({ error: "Failed to fetch team leads" });
+  }
+};
