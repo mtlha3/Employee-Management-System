@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import HrRequest from "../models/hr_requests.js";
-import Employee from "../models/EmployeeInfo.js";
+import Employee from "../models/employeeInfo.js";
 
 //===================== HR REQUESTS =====================//
 

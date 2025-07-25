@@ -146,3 +146,14 @@ export const getTeamLeads = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch team leads" });
   }
 };
+
+
+export const getAllEmployees = async (req, res) => {
+  try {
+    const employees = await Employee.find({}, { employee_id: 1, name: 1, role: 1 });
+    res.status(200).json({ employees });
+  } catch (error) {
+    console.error("Failed to fetch employees:", error);
+    res.status(500).json({ error: "Failed to fetch employees" });
+  }
+};

@@ -111,3 +111,48 @@ export const getProjectsForTeamLead = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch projects" });
   }
 };
+
+export const assignDevelopers = async (req, res) => {
+  const { projectId } = req.params;
+  const { developers } = req.body;
+
+  try {
+    const project = await Project.findOne({ project_id: projectId });
+
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    // Filter out already added developers
+    const existingIds = new Set(project.developers.map(dev => dev.employee_id));
+    const newDevelopers = developers.filter(dev => !existingIds.has(dev.employee_id));
+
+    // Append new ones
+    project.developers.push(...newDevelopers);
+
+    const updatedProject = await project.save();
+
+    res.status(200).json({ message: "Developers assigned", project: updatedProject });
+  } catch (error) {
+    console.error("Error assigning developers:", error);
+    res.status(500).json({ error: "Failed to assign developers" });
+  }
+};
+
+
+export const getProjectDevelopers = async (req, res) => {
+  const { projectId } = req.params;
+
+  try {
+    const project = await Project.findOne({ project_id: projectId });
+
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    res.status(200).json({ developers: project.developers });
+  } catch (error) {
+    console.error("Error fetching developers:", error);
+    res.status(500).json({ error: "Failed to fetch developers" });
+  }
+};
