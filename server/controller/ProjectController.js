@@ -1,5 +1,4 @@
 import Project from '../models/project.js';
-import User from '../models/employeeInfo.js'
 
 const generateProjectId = () => {
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -81,5 +80,34 @@ export const assignTeamLead = async (req, res) => {
   } catch (err) {
     console.error("Assign team lead error:", err);
     res.status(500).json({ error: "Failed to assign team lead" });
+  }
+};
+
+
+export const getProjectsForTeamLead = async (req, res) => {
+  const team_lead_id = req.user?.employee_id;
+
+  if (!team_lead_id) {
+    return res.status(401).json({ error: "Unauthorized: Missing team lead ID" });
+  }
+
+  try {
+    const projects = await Project.find(
+      { "team_lead.employee_id": team_lead_id },
+      {
+        project_id: 1,
+        project_name: 1,
+        start_date: 1,
+        end_date: 1,
+        project_manager_id: 1,
+        project_manager_name: 1,
+        created_at: 1,
+      }
+    ).sort({ created_at: -1 });
+
+    res.status(200).json({ projects });
+  } catch (error) {
+    console.error("Error fetching projects for team lead:", error);
+    res.status(500).json({ error: "Failed to fetch projects" });
   }
 };

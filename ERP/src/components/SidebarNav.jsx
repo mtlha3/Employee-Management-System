@@ -69,7 +69,7 @@ const SidebarNav = ({ role, onNavigate  }) => {
         break
       case "team lead":
         buttons = [
-          { text: "Assign Tasks", action: () => navigate("/assign-task") },
+          { text: "My Projects", action: () => onNavigate("assign-task"), },
           { text: "Today's Tasks", action: () => navigate("/tasks") },
           { text: "Request to HR", action: () => onNavigate("request-hr"),},
         ]

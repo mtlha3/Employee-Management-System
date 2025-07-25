@@ -9,6 +9,7 @@ import Signup from "../components/Signup"
 import ViewEditEmployees from "../components/ViewEditEmployees"
 import CreateProject from "../components/CreateProject"
 import ProjectProgress from "../components/ProjectProgress"
+import TeamLeadProject from "../components/TeamLeadProject"
 
 const Dashboard = () => {
   const [user, setUser] = useState(null)
@@ -66,6 +67,7 @@ const Dashboard = () => {
           {activeSection === "view-edit" && <ViewEditEmployees  />}
           {activeSection === "create-project" && <CreateProject/>}
           {activeSection === "progress-project" && <ProjectProgress/>}
+          {activeSection === "assign-task" && <TeamLeadProject/>}
           {activeSection === "home" && (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
