@@ -10,6 +10,8 @@ import ViewEditEmployees from "../components/ViewEditEmployees"
 import CreateProject from "../components/CreateProject"
 import ProjectProgress from "../components/ProjectProgress"
 import TeamLeadProject from "../components/TeamLeadProject"
+import TeamLeadTaskBoard from "../components/TeamLeadTaskBoard"
+import DevelopersTaskBoard from "../components/DevelopersTaskBoard"
 
 const Dashboard = () => {
   const [user, setUser] = useState(null)
@@ -68,6 +70,8 @@ const Dashboard = () => {
           {activeSection === "create-project" && <CreateProject/>}
           {activeSection === "progress-project" && <ProjectProgress/>}
           {activeSection === "assign-task" && <TeamLeadProject/>}
+          {activeSection === "assign-task-team" && <TeamLeadTaskBoard/>}
+          {activeSection === "dev-task" && <DevelopersTaskBoard/>}
           {activeSection === "home" && (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">

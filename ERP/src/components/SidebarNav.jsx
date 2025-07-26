@@ -63,14 +63,14 @@ const SidebarNav = ({ role, onNavigate  }) => {
       case "full stack developer":
       case "devops":
         buttons = [
-          { text: "Today's Tasks", action: () => navigate("/tasks") },
+          { text: "Today's Tasks", action: () => onNavigate("dev-task") },
           { text: "Request to HR", action: () => onNavigate("request-hr"),  },
         ]
         break
       case "team lead":
         buttons = [
           { text: "My Projects", action: () => onNavigate("assign-task"), },
-          { text: "Today's Tasks", action: () => navigate("/tasks") },
+          { text: "Today's Tasks", action: () => onNavigate("assign-task-team"), },
           { text: "Request to HR", action: () => onNavigate("request-hr"),},
         ]
         break

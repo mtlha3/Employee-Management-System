@@ -1,4 +1,8 @@
 import Project from '../models/project.js';
+import { v4 as uuidv4 } from "uuid";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
 
 const generateProjectId = () => {
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -159,5 +163,181 @@ export const getProjectDevelopers = async (req, res) => {
   } catch (error) {
     console.error("Error fetching developers:", error);
     res.status(500).json({ error: "Failed to fetch developers" });
+  }
+};
+
+
+//============
+
+export const assignTaskToDeveloper = async (req, res) => {
+  try {
+    const { project_id, developerId, title, description } = req.body;
+    const file = req.file;
+
+    if (!project_id || !developerId || !title || !description) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
+
+    const project = await Project.findOne({ project_id });
+    if (!project) {
+      return res.status(404).json({ message: "Project not found." });
+    }
+
+    const developer = project.developers.find(dev => dev.employee_id === developerId);
+    if (!developer) {
+      return res.status(404).json({ message: "Developer not found in project." });
+    }
+
+    const task = {
+      task_id: uuidv4().slice(0, 6).toUpperCase(),
+      title,
+      description,
+      status: 'pending',
+      assigned_at: new Date(),
+      file: file ? {
+        filename: file.filename,
+        path: file.path,
+        mimetype: file.mimetype,
+        size: file.size
+      } : null
+    };
+
+    developer.tasks.push(task);
+    await project.save();
+
+    res.status(200).json({ message: "Task assigned successfully.", task });
+  } catch (error) {
+    console.error("Error assigning task:", error);
+    res.status(500).json({ message: "Server error." });
+  }
+};
+
+//================
+
+export const getTasksForDeveloper = async (req, res) => {
+  try {
+    const { projectId, developerId } = req.params;
+
+    const project = await Project.findOne({ project_id: projectId });
+
+    if (!project) {
+      return res.status(404).json({ message: "Project not found." });
+    }
+
+    const developer = project.developers.find(
+      (dev) => dev.employee_id.trim().toLowerCase() === developerId.trim().toLowerCase()
+    );
+
+    if (!developer) {
+      return res.status(404).json({ message: "Developer not found in this project." });
+    }
+
+    res.status(200).json({ tasks: developer.tasks || [] });
+  } catch (error) {
+    console.error("Error fetching tasks:", error);
+    res.status(500).json({ message: "Server error while fetching tasks." });
+  }
+};
+
+//==========
+  export const getProjectsAndTasksForDeveloper = async (req, res) => {
+  try {
+    const developerId = req.user.employee_id; // Extract from authenticated user
+
+    const projects = await Project.find({
+      "developers.employee_id": developerId,
+    });
+
+    if (!projects.length) {
+      return res.status(404).json({ message: "No projects found for this developer." });
+    }
+
+    const result = projects.map((project) => {
+      const developer = project.developers.find(dev => dev.employee_id === developerId);
+
+      return {
+        project_id: project.project_id,
+        project_name: project.project_name,
+        start_date: project.start_date,
+        end_date: project.end_date,
+        team_lead: project.team_lead,
+        project_manager_id: project.project_manager_id,
+        project_manager_name: project.project_manager_name,
+        developer: {
+          employee_id: developer.employee_id,
+          name: developer.name,
+          role: developer.role,
+          tasks: developer.tasks || [],
+        }
+      };
+    });
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error fetching developer's projects and tasks:", error);
+    res.status(500).json({ message: "Server error while fetching data." });
+  }
+}
+
+//==========
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const dir = "uploads/submitted_tasks";
+    fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueName = Date.now() + "-" + file.originalname;
+    cb(null, uniqueName);
+  }
+});
+export const upload = multer({ storage: storage }).single("submission_file");
+
+export const submitTaskByDeveloper = async (req, res) => {
+  const { developerId, taskId } = req.params;
+  const { comment } = req.body;
+
+  try {
+    const project = await Project.findOne({
+      "developers.tasks.task_id": taskId,
+      "developers.employee_id": developerId
+    });
+
+    if (!project) {
+      return res.status(404).json({ error: "Project or task not found" });
+    }
+
+    const developer = project.developers.find(
+      (dev) => dev.employee_id === developerId
+    );
+
+    if (!developer) {
+      return res.status(404).json({ error: "Developer not found in project" });
+    }
+
+    const task = developer.tasks.find((t) => t.task_id === taskId);
+    if (!task) {
+      return res.status(404).json({ error: "Task not found" });
+    }
+
+    task.status = "pending";
+    task.submission_comment = comment || "";
+    task.submitted_at = new Date();
+
+    if (req.file) {
+      task.submission_file = {
+        filename: req.file.filename,
+        path: req.file.path,
+        mimetype: req.file.mimetype,
+        size: req.file.size
+      };
+    }
+
+    await project.save();
+    return res.status(200).json({ message: "Task submitted successfully", task });
+  } catch (error) {
+    console.error("Submission error:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
