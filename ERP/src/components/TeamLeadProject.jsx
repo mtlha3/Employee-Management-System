@@ -255,7 +255,7 @@ const TeamLeadDashboard = () => {
 
                 return (
                   <div key={project.project_id} className="transition-all duration-300">
-                  
+
                     <div
                       onClick={() => toggleProjectCard(project.project_id)}
                       className="p-6 hover:bg-slate-50/50 transition-all duration-200 cursor-pointer group"
@@ -438,7 +438,7 @@ const TeamLeadDashboard = () => {
       {modalProjectId && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden border border-white/20">
-           
+
             <div className="p-6 border-b border-slate-100">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
@@ -487,7 +487,7 @@ const TeamLeadDashboard = () => {
                       key={emp.employee_id}
                       className="flex items-center space-x-3 p-3 hover:bg-slate-50 rounded-xl transition-colors cursor-pointer group"
                     >
-                      <input
+                      {/* <input
                         type="checkbox"
                         className="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500 focus:ring-2"
                         checked={
@@ -495,7 +495,25 @@ const TeamLeadDashboard = () => {
                           false
                         }
                         onChange={() => handleCheckboxChange(modalProjectId, emp)}
-                      />
+                      /> */}
+                      {(() => {
+                        const alreadyAssigned =
+                          projectDevelopers[modalProjectId]?.some((dev) => dev.employee_id === emp.employee_id) || false
+
+                        const isChecked =
+                          selectedDevelopers[modalProjectId]?.some((dev) => dev.employee_id === emp.employee_id) || false
+
+                        return (
+                          <input
+                            type="checkbox"
+                            className="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500 focus:ring-2"
+                            checked={alreadyAssigned || isChecked}
+                            disabled={alreadyAssigned}
+                            onChange={() => !alreadyAssigned && handleCheckboxChange(modalProjectId, emp)}
+                          />
+                        )
+                      })()}
+
                       <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
                         <User className="w-4 h-4 text-white" />
                       </div>
