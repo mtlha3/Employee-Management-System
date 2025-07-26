@@ -283,7 +283,7 @@ const TeamLeadDashboard = () => {
                               </div>
                             </div>
 
-                            <div className="mt-2 w-48">
+                            {/* <div className="mt-2 w-48">
                               <div className="flex justify-between text-xs text-slate-500 mb-1">
                                 <span>Progress</span>
                                 <span>{Math.round(deadlineInfo.progressPercentage)}%</span>
@@ -294,7 +294,7 @@ const TeamLeadDashboard = () => {
                                   style={{ width: `${deadlineInfo.progressPercentage}%` }}
                                 ></div>
                               </div>
-                            </div>
+                            </div> */}
                           </div>
                         </div>
 
@@ -368,7 +368,7 @@ const TeamLeadDashboard = () => {
                               </div>
                             </div>
 
-                            <div className="mt-4">
+                            {/* <div className="mt-4">
                               <div className="flex justify-between text-sm text-slate-600 mb-2">
                                 <span>Overall Progress</span>
                                 <span className="font-semibold">
@@ -381,7 +381,7 @@ const TeamLeadDashboard = () => {
                                   style={{ width: `${deadlineInfo.progressPercentage}%` }}
                                 ></div>
                               </div>
-                            </div>
+                            </div> */}
                           </div>
 
                           <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-slate-200 shadow-sm p-6">
