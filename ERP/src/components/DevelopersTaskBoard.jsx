@@ -39,16 +39,26 @@ const DevelopersTaskBoard = () => {
     try {
       const response = await axios.get("http://localhost:5000/api/projects/developers/projects-and-tasks", {
         withCredentials: true,
-      })
-      setProjectsAndTasks(response.data)
+      });
+      const data = response.data;
+
+      if (Array.isArray(data)) {
+        setProjectsAndTasks(data);
+        setError(null);
+      } else {
+      
+        console.error("Unexpected response format:", data);
+        setError("Invalid response from server.");
+        Swal.fire("Error", "Something went wrong while loading data", "error");
+      }
+
     } catch (err) {
-      console.error("Error fetching projects and tasks:", err)
-      setError("Failed to load tasks.")
-      Swal.fire("Error", "Failed to load your projects and tasks", "error")
+      console.error("Error fetching projects and tasks:", err);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
+
 
   useEffect(() => {
     fetchProjectsAndTasks()
@@ -243,7 +253,7 @@ const DevelopersTaskBoard = () => {
 
                 return (
                   <div key={project.project_id} className="transition-all duration-300">
-                    
+
                     <div
                       onClick={() => toggleProject(project.project_id)}
                       className="p-6 hover:bg-slate-50/50 transition-all duration-200 cursor-pointer group"
@@ -417,7 +427,7 @@ const DevelopersTaskBoard = () => {
       {selectedTask && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden border border-white/20">
-           
+
             <div className="p-6 border-b border-slate-100">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
@@ -436,7 +446,7 @@ const DevelopersTaskBoard = () => {
             </div>
 
             <form onSubmit={handleSubmitTask} className="p-6 space-y-6">
-             
+
               <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
                 <div className="flex items-center space-x-3 mb-2">
                   <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">

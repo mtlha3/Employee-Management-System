@@ -265,9 +265,8 @@ export const getTasksForDeveloper = async (req, res) => {
     const projects = await Project.find({
       "developers.employee_id": developerId,
     });
-
     if (!projects.length) {
-      return res.status(404).json({ message: "No projects found for this developer." });
+      return res.status(200).json([]); 
     }
 
     const result = projects.map((project) => {
@@ -290,12 +289,13 @@ export const getTasksForDeveloper = async (req, res) => {
       };
     });
 
-    res.status(200).json(result);
+    return res.status(200).json(result);
   } catch (error) {
     console.error("Error fetching developer's projects and tasks:", error);
-    res.status(500).json({ message: "Server error while fetching data." });
+    return res.status(500).json({ message: "Server error while fetching data." });
   }
-}
+};
+
 
 //========== Task Submit by Devs
 export const submitTaskByDeveloper = async (req, res) => {
