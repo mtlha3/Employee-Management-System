@@ -482,3 +482,45 @@ export const getAllSubmissionsLog = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+//=================== Download Submission File
+export const downloadSubmissionFile = async (req, res) => {
+  try {
+    const { projectId, developerId, taskId } = req.params;
+    const teamLeadId = req.user.employee_id;
+
+    const project = await Project.findOne({
+      project_id: projectId,
+      "team_lead.employee_id": teamLeadId,
+    });
+
+    if (!project) {
+      return res.status(403).json({ error: "You are not authorized to access this project or project not found" });
+    }
+
+    const developer = project.developers.find((dev) => dev.employee_id === developerId);
+    if (!developer) {
+      return res.status(404).json({ error: "Developer not found in this project" });
+    }
+
+    const task = developer.tasks.find((t) => t.task_id === taskId);
+    if (!task) {
+      return res.status(404).json({ error: "Task not found" });
+    }
+
+    if (!task.submission_file || !task.submission_file.data || !task.submission_file.contentType) {
+      return res.status(404).json({ error: "Submission file not found for this task" });
+    }
+
+    const filename = task.submission_file.filename || 'download';
+
+    res.setHeader("Content-Type", task.submission_file.contentType);
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.setHeader("Content-Length", task.submission_file.data.length);
+
+    return res.status(200).send(task.submission_file.data);
+  } catch (error) {
+    console.error("Error downloading submission file:", error);
+    return res.status(500).json({ error: "Failed to download file", details: error.message });
+  }
+};

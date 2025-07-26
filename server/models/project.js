@@ -15,8 +15,8 @@ const taskSchema = new mongoose.Schema({
   },
   file: {
     filename: String,
-    path: String,
-    mimetype: String,
+    contentType: String,
+    data: Buffer,     
     size: Number
   },
   submission_comment: {
@@ -25,8 +25,8 @@ const taskSchema = new mongoose.Schema({
   },
   submission_file: {
     filename: String,
-    path: String,
-    mimetype: String,
+    contentType: String,
+    data: Buffer,        
     size: Number
   },
   submitted_at: {
