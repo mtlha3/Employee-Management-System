@@ -1,8 +1,5 @@
 import Project from '../models/project.js';
 import { v4 as uuidv4 } from "uuid";
-import multer from "multer";
-import path from "path";
-import fs from "fs";
 
 const generateProjectId = () => {
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -91,6 +88,67 @@ export const assignTeamLead = async (req, res) => {
     res.status(500).json({ error: "Failed to assign team lead" });
   }
 };
+
+// ==================== Update Project ====================
+export const updateProject = async (req, res) => {
+  const { projectId } = req.params;
+  const { project_name, start_date, end_date, team_lead } = req.body;
+
+  try {
+    const updateFields = {};
+    if (project_name) updateFields.project_name = project_name;
+    if (start_date) updateFields.start_date = start_date;
+    if (end_date) updateFields.end_date = end_date;
+
+    if (team_lead?.employee_id && team_lead?.name && team_lead?.role) {
+      updateFields.team_lead = {
+        employee_id: team_lead.employee_id,
+        name: team_lead.name,
+        role: team_lead.role,
+      };
+    }
+
+    const updatedProject = await Project.findOneAndUpdate(
+      { project_id: projectId },
+      { $set: updateFields },
+      { new: true }
+    );
+
+    if (!updatedProject) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    res.status(200).json({
+      message: "Project updated successfully",
+      project: updatedProject,
+    });
+  } catch (err) {
+    console.error("Error updating project:", err);
+    res.status(500).json({ error: "Failed to update project" });
+  }
+};
+
+
+
+// ==================== Delete Project ====================
+export const deleteProject = async (req, res) => {
+  const { projectId } = req.params;
+
+  try {
+    const deletedProject = await Project.findOneAndDelete({ project_id: projectId });
+
+    if (!deletedProject) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    res.status(200).json({ message: "Project deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting project:", err);
+    res.status(500).json({ error: "Failed to delete project" });
+  }
+};
+
+
 
 //=================== Get Team Lead Of Project===============
 export const getTeamLeadOfProject = async (req, res) => {

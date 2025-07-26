@@ -1,5 +1,5 @@
 import express from "express";
-import { createProject, getAllProjects, assignTeamLead,getProjectsForTeamLead, assignDevelopers, 
+import { createProject, updateProject, deleteProject ,getAllProjects, assignTeamLead,getProjectsForTeamLead, assignDevelopers, 
     getProjectDevelopers, assignTaskToDeveloper, getTasksForDeveloper, getProjectsAndTasksForDeveloper,
 submitTaskByDeveloper, getAllTaskSubmissionsForTeamLead, updateTaskStatus, getStatusUpdatedTasksForTeamLead,
 getAllSubmissionsLog, downloadSubmissionFile, getTeamLeadOfProject, removeDeveloperFromProject } from "../controller/ProjectController.js";
@@ -10,6 +10,8 @@ import upload from "../middleware/upload.js"
 const router = express.Router();
 
 router.post("/create", authenticateToken, createProject);
+router.put("/projects/:projectId", updateProject)
+router.delete("/projects/:projectId", deleteProject)
 router.get("/projects", getAllProjects);
 router.get("/team-leads", getTeamLeads);
 router.post("/assign-tl/:projectId", assignTeamLead);
