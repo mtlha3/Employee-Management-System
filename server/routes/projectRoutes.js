@@ -1,7 +1,7 @@
 import express from "express";
 import { createProject, getAllProjects, assignTeamLead,getProjectsForTeamLead, assignDevelopers, 
     getProjectDevelopers, assignTaskToDeveloper, getTasksForDeveloper, getProjectsAndTasksForDeveloper,
-submitTaskByDeveloper } from "../controller/ProjectController.js";
+submitTaskByDeveloper, getAllTaskSubmissionsForTeamLead, updateTaskStatus, getStatusUpdatedTasksForTeamLead } from "../controller/ProjectController.js";
 import { getTeamLeads } from "../controller/employeeController.js";
 import { authenticateToken } from "../middleware/authMiddleware.js";
 import upload from "../middleware/upload.js"
@@ -19,6 +19,8 @@ router.post('/tasks/assign', upload.single('file'), assignTaskToDeveloper);
 router.get('/projects/:projectId/developers/:developerId/tasks', getTasksForDeveloper);
 router.get("/developers/projects-and-tasks", authenticateToken, getProjectsAndTasksForDeveloper);
 router.post("/developers/:developerId/tasks/:taskId/submit",authenticateToken,upload.single('file'),submitTaskByDeveloper);
-
+router.get("/teamlead/submissions", authenticateToken , getAllTaskSubmissionsForTeamLead);
+router.put("/project/updatetaskstatus", updateTaskStatus);
+router.get("/teamlead/status-updated-tasks", getStatusUpdatedTasksForTeamLead);
 
 export default router;

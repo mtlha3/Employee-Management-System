@@ -341,3 +341,129 @@ export const submitTaskByDeveloper = async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 };
+
+
+//=========
+export const getAllTaskSubmissionsForTeamLead = async (req, res) => {
+  const teamLeadId = req.user?.employee_id;
+
+  if (!teamLeadId) {
+    return res.status(401).json({ error: "Unauthorized: Team Lead ID missing" });
+  }
+
+  try {
+    const projects = await Project.find({ "team_lead.employee_id": teamLeadId });
+
+    let submissions = [];
+
+    projects.forEach(project => {
+      project.developers.forEach(developer => {
+        developer.tasks.forEach(task => {
+          if (task.submission_file && task.submitted_at) {
+            submissions.push({
+              project_id: project.project_id,
+              project_name: project.project_name,
+              developer_id: developer.employee_id,
+              developer_name: developer.name,
+              task_id: task.task_id,
+              task_title: task.title,
+              submitted_at: task.submitted_at,
+              comment: task.submission_comment,
+              submission_file: task.submission_file,
+              status: task.status
+            });
+          }
+        });
+      });
+    });
+
+    // ✅ Return correct response
+    return res.status(200).json({ submissions });
+
+  } catch (error) {
+    console.error("Error fetching submissions:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+//======
+
+export const updateTaskStatus = async (req, res) => {
+  const { project_id, developer_id, task_id, status } = req.body;
+
+  if (!project_id || !developer_id || !task_id || !status) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  try {
+    const project = await Project.findOne({ project_id });
+
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    const developer = project.developers.find(dev => dev.employee_id === developer_id);
+    if (!developer) {
+      return res.status(404).json({ error: "Developer not found in this project" });
+    }
+
+    const task = developer.tasks.find(task => task.task_id === task_id);
+    if (!task) {
+      return res.status(404).json({ error: "Task not found" });
+    }
+
+    task.status = status;
+    await project.save();
+
+    return res.status(200).json({ message: "Task status updated successfully", task });
+  } catch (err) {
+    console.error("Error updating task status:", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+//=============
+export const getStatusUpdatedTasksForTeamLead = async (req, res) => {
+  const teamLeadId = req.user?.employee_id;
+
+  if (!teamLeadId) {
+    return res.status(401).json({ error: "Unauthorized: Team Lead ID missing" });
+  }
+
+  try {
+    const projects = await Project.find({ "team_lead.employee_id": teamLeadId });
+
+    let updatedTasks = [];
+
+    projects.forEach(project => {
+      project.developers.forEach(developer => {
+        developer.tasks.forEach(task => {
+          if (
+            task.status !== "pending" &&         // assuming "pending" is the default
+            task.submission_file &&              // only consider submitted tasks
+            task.submitted_at
+          ) {
+            updatedTasks.push({
+              project_id: project.project_id,
+              project_name: project.project_name,
+              developer_id: developer.employee_id,
+              developer_name: developer.name,
+              task_id: task.task_id,
+              task_title: task.title,
+              submitted_at: task.submitted_at,
+              comment: task.submission_comment,
+              submission_file: task.submission_file,
+              status: task.status
+            });
+          }
+        });
+      });
+    });
+
+    return res.status(200).json({ updatedTasks });
+
+  } catch (error) {
+    console.error("Error fetching updated tasks:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
