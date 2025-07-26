@@ -3,10 +3,8 @@ import axios from "axios"
 import {
   Loader2,
   UserPlus,
-  LineChart,
   FolderOpen,
   Calendar,
-  User,
   CheckCircle,
   Clock,
   Briefcase,
@@ -30,24 +28,23 @@ const ProjectProgress = () => {
     const fetchProjects = async () => {
       try {
         const res = await axios.get(`${API}/api/projects/projects`)
-        const projectsWithLeads = await Promise.all(
+        const enriched = await Promise.all(
           res.data.projects.map(async (proj) => {
+            let lead = null
             try {
               const leadRes = await axios.get(`${API}/api/projects/projects/team-lead/${proj.project_id}`)
-              return { ...proj, team_lead: leadRes.data.team_lead }
-            } catch {
-              return { ...proj, team_lead: null }
-            }
+              lead = leadRes.data.team_lead
+            } catch {}
+            return { ...proj, team_lead: lead, developers: [] }
           })
         )
-        setProjects(projectsWithLeads)
+        setProjects(enriched)
       } catch (err) {
         console.error("Error fetching projects:", err)
       } finally {
         setLoading(false)
       }
     }
-
     fetchProjects()
   }, [])
 
@@ -60,6 +57,22 @@ const ProjectProgress = () => {
     }
   }
 
+  const fetchProjectDevelopers = async (project_id) => {
+  try {
+    const res = await axios.get(`${API}/api/projects/projects/${project_id}/developers`)
+    setProjects((prevProjects) =>
+      prevProjects.map((proj) =>
+        proj.project_id === project_id
+          ? { ...proj, developers: res.data.developers }
+          : proj
+      )
+    )
+  } catch (err) {
+    console.error("Error fetching developers:", err)
+  }
+}
+
+
   const openAssignModal = async (projectId) => {
     await fetchTeamLeads()
     setSelectedProjectId(projectId)
@@ -68,20 +81,15 @@ const ProjectProgress = () => {
 
   const assignTeamLead = async () => {
     if (!selectedLead) return
-
     try {
       await axios.post(`${API}/api/projects/assign-tl/${selectedProjectId}`, selectedLead)
-
-      // Fetch updated team lead
       const res = await axios.get(`${API}/api/projects/team-lead/${selectedProjectId}`)
       const updatedLead = res.data.team_lead
-
       setProjects((prev) =>
         prev.map((p) =>
           p.project_id === selectedProjectId ? { ...p, team_lead: updatedLead } : p
         )
       )
-
       setShowModal(false)
       setSelectedLead(null)
     } catch (err) {
@@ -96,27 +104,29 @@ const ProjectProgress = () => {
       day: "numeric",
     })
 
-  const getProjectStatus = (startDate, endDate) => {
-    const now = new Date()
-    const start = new Date(startDate)
-    const end = new Date(endDate)
-
-    if (now < start) return { status: "upcoming", color: "bg-blue-100 text-blue-800 border-blue-200" }
-    if (now > end) return { status: "completed", color: "bg-emerald-100 text-emerald-800 border-emerald-200" }
+  const getProjectStatus = (start, end) => {
+    const now = new Date(),
+      s = new Date(start),
+      e = new Date(end)
+    if (now < s) return { status: "upcoming", color: "bg-blue-100 text-blue-800 border-blue-200" }
+    if (now > e) return { status: "completed", color: "bg-emerald-100 text-emerald-800 border-emerald-200" }
     return { status: "active", color: "bg-yellow-100 text-yellow-800 border-yellow-200" }
   }
 
   const getStatusIcon = (status) => {
-    switch (status) {
-      case "completed": return <CheckCircle className="w-4 h-4" />
-      case "active": return <Clock className="w-4 h-4" />
-      case "upcoming": return <Calendar className="w-4 h-4" />
-      default: return <Clock className="w-4 h-4" />
-    }
+    if (status === "completed") return <CheckCircle className="w-4 h-4" />
+    if (status === "active") return <Clock className="w-4 h-4" />
+    return <Calendar className="w-4 h-4" />
   }
 
-  const toggleProjectExpansion = (id) =>
-    setExpandedProject(expandedProject === id ? null : id)
+  const toggleProjectExpansion = (id) => {
+    if (expandedProject === id) {
+      setExpandedProject(null)
+    } else {
+      setExpandedProject(id)
+      fetchProjectDevelopers(id)
+    }
+  }
 
   if (loading) {
     return (
@@ -132,10 +142,7 @@ const ProjectProgress = () => {
       {showModal && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
           <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl relative">
-            <button
-              onClick={() => setShowModal(false)}
-              className="absolute top-3 right-3 text-slate-500 hover:text-red-500"
-            >
+            <button onClick={() => setShowModal(false)} className="absolute top-3 right-3 text-slate-500 hover:text-red-500">
               <X className="w-5 h-5" />
             </button>
             <h2 className="text-xl font-semibold text-slate-800 mb-4">Assign Team Lead</h2>
@@ -154,10 +161,7 @@ const ProjectProgress = () => {
                 </option>
               ))}
             </select>
-            <button
-              onClick={assignTeamLead}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 rounded-lg"
-            >
+            <button onClick={assignTeamLead} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 rounded-lg">
               Assign
             </button>
           </div>
@@ -182,7 +186,7 @@ const ProjectProgress = () => {
         ) : (
           <div>
             {projects.map((project) => {
-              const status = getProjectStatus(project.start_date, project.end_date)
+              const { status, color } = getProjectStatus(project.start_date, project.end_date)
               const isExpanded = expandedProject === project.project_id
               return (
                 <div key={project.project_id} className="border-b">
@@ -194,16 +198,13 @@ const ProjectProgress = () => {
                       <Briefcase className="text-emerald-600" />
                       <div>
                         <h3 className="font-semibold text-lg">{project.project_name}</h3>
-                        <p className="text-sm text-slate-600">
-                          Manager: {project.project_manager_name}
-                        </p>
+                        <p className="text-sm text-slate-600">Manager: {project.project_manager_name}</p>
                         <p className="text-xs text-slate-400">ID: {project.project_id}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
-                      <span className={`text-sm border rounded-full px-3 py-1 ${status.color}`}>
-                        {getStatusIcon(status.status)}{" "}
-                        <span className="capitalize ml-1">{status.status}</span>
+                      <span className={`text-sm border rounded-full px-3 py-1 ${color}`}>
+                        {getStatusIcon(status)} <span className="capitalize ml-1">{status}</span>
                       </span>
                       {isExpanded ? <ChevronUp /> : <ChevronDown />}
                     </div>
@@ -211,7 +212,9 @@ const ProjectProgress = () => {
 
                   {isExpanded && (
                     <div className="bg-slate-50 px-6 pb-6">
+                      {/* Project grid */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                        {/* dates and manager/lead */}
                         <div>
                           <label className="block text-slate-600 text-sm">Start Date</label>
                           <p className="text-slate-800 font-medium">{formatDate(project.start_date)}</p>
@@ -233,6 +236,8 @@ const ProjectProgress = () => {
                           )}
                         </div>
                       </div>
+
+                      {/* assign button */}
                       {project.team_lead ? (
                         <button
                           disabled
@@ -251,9 +256,25 @@ const ProjectProgress = () => {
                         </button>
                       )}
 
+                      {/* Developers */}
                       <div className="mt-6 border-t pt-4">
                         <h4 className="text-slate-700 font-semibold mb-2">Developers</h4>
-                        <p className="text-slate-500 text-sm italic">Developer assignment coming soon.</p>
+                        {project.developers.length === 0 ? (
+                          <p className="text-slate-500 text-sm italic">No developers yet.</p>
+                        ) : (
+                          Object.entries(project.developers.reduce((acc, dev) => {
+                            acc[dev.role] = acc[dev.role] || []
+                            acc[dev.role].push(dev)
+                            return acc
+                          }, {})).map(([role, list]) => (
+                            <div key={role} className="mb-4">
+                              <p className="font-medium">{role} ({list.length})</p>
+                              <ul className="list-disc ml-6">
+                                {list.map((d) => <li key={d.employee_id}>{d.name} (ID: {d.employee_id})</li>)}
+                              </ul>
+                            </div>
+                          ))
+                        )}
                       </div>
                     </div>
                   )}
