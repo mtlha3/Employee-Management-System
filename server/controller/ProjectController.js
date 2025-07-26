@@ -92,6 +92,27 @@ export const assignTeamLead = async (req, res) => {
   }
 };
 
+//=================== Get Team Lead Of Project===============
+export const getTeamLeadOfProject = async (req, res) => {
+  const { projectId } = req.params;
+
+  try {
+    const project = await Project.findOne({ project_id: projectId }).select("team_lead");
+
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    if (!project.team_lead || !project.team_lead.name) {
+      return res.status(404).json({ error: "Team lead not assigned yet" });
+    }
+
+    res.status(200).json({ team_lead: project.team_lead });
+  } catch (err) {
+    console.error("Error fetching team lead:", err);
+    res.status(500).json({ error: "Failed to fetch team lead" });
+  }
+};
 
 //==================== Team Lead Projects ====================
 export const getProjectsForTeamLead = async (req, res) => {

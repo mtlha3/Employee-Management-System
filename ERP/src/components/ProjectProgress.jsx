@@ -30,13 +30,24 @@ const ProjectProgress = () => {
     const fetchProjects = async () => {
       try {
         const res = await axios.get(`${API}/api/projects/projects`)
-        setProjects(res.data.projects)
+        const projectsWithLeads = await Promise.all(
+          res.data.projects.map(async (proj) => {
+            try {
+              const leadRes = await axios.get(`${API}/api/projects/projects/team-lead/${proj.project_id}`)
+              return { ...proj, team_lead: leadRes.data.team_lead }
+            } catch {
+              return { ...proj, team_lead: null }
+            }
+          })
+        )
+        setProjects(projectsWithLeads)
       } catch (err) {
         console.error("Error fetching projects:", err)
       } finally {
         setLoading(false)
       }
     }
+
     fetchProjects()
   }, [])
 
@@ -60,11 +71,17 @@ const ProjectProgress = () => {
 
     try {
       await axios.post(`${API}/api/projects/assign-tl/${selectedProjectId}`, selectedLead)
+
+      // Fetch updated team lead
+      const res = await axios.get(`${API}/api/projects/team-lead/${selectedProjectId}`)
+      const updatedLead = res.data.team_lead
+
       setProjects((prev) =>
         prev.map((p) =>
-          p.project_id === selectedProjectId ? { ...p, team_lead: selectedLead } : p
+          p.project_id === selectedProjectId ? { ...p, team_lead: updatedLead } : p
         )
       )
+
       setShowModal(false)
       setSelectedLead(null)
     } catch (err) {
@@ -147,6 +164,7 @@ const ProjectProgress = () => {
         </div>
       )}
 
+      {/* HEADER */}
       <div className="text-center mb-8">
         <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl mb-4 shadow-lg">
           <FolderOpen className="w-8 h-8 text-white" />
