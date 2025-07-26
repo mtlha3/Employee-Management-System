@@ -168,7 +168,6 @@ export const getProjectDevelopers = async (req, res) => {
 
 
 //============ Assign Task to Devs
-
 export const assignTaskToDeveloper = async (req, res) => {
   try {
     const { project_id, developerId, title, description } = req.body;
@@ -195,10 +194,9 @@ export const assignTaskToDeveloper = async (req, res) => {
       status: 'pending',
       assigned_at: new Date(),
       file: file ? {
-        filename: file.filename,
-        path: file.path,
-        mimetype: file.mimetype,
-        size: file.size
+        filename: file.originalname,
+        contentType: file.mimetype,
+        data: file.buffer
       } : null
     };
 
@@ -211,7 +209,6 @@ export const assignTaskToDeveloper = async (req, res) => {
     res.status(500).json({ message: "Server error." });
   }
 };
-
 //================
 
 export const getTasksForDeveloper = async (req, res) => {
@@ -280,19 +277,6 @@ export const getTasksForDeveloper = async (req, res) => {
 }
 
 //========== Task Submit by Devs
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const dir = "uploads/submitted_tasks";
-    fs.mkdirSync(dir, { recursive: true });
-    cb(null, dir);
-  },
-  filename: function (req, file, cb) {
-    const uniqueName = Date.now() + "-" + file.originalname;
-    cb(null, uniqueName);
-  }
-});
-export const upload = multer({ storage: storage }).single("submission_file");
-
 export const submitTaskByDeveloper = async (req, res) => {
   const { developerId, taskId } = req.params;
   const { comment } = req.body;
@@ -326,9 +310,9 @@ export const submitTaskByDeveloper = async (req, res) => {
 
     if (req.file) {
       task.submission_file = {
-        filename: req.file.filename,
-        path: req.file.path,
-        mimetype: req.file.mimetype,
+        filename: req.file.originalname,
+        contentType: req.file.mimetype,
+        data: req.file.buffer,
         size: req.file.size
       };
     }
