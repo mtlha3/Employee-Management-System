@@ -465,37 +465,36 @@ export const getStatusUpdatedTasksForTeamLead = async (req, res) => {
 };
 
 //============== Get All Submissions of task for Logs
-
 export const getAllSubmissionsLog = async (req, res) => {
   try {
-    const projects = await Project.find(); // optionally filter by team lead or admin later
+    const projects = await Project.find();
 
-    let submissionsLog = [];
+    const submissions = [];
 
     projects.forEach(project => {
-      project.developers.forEach(dev => {
-        dev.tasks.forEach(task => {
+      project.developers.forEach(developer => {
+        developer.tasks.forEach(task => {
           if (task.submission_file && task.submitted_at) {
-            submissionsLog.push({
+            submissions.push({
               project_id: project.project_id,
               project_name: project.project_name,
-              developer_id: dev.employee_id,
-              developer_name: dev.name,
+              developer_id: developer.employee_id,
+              developer_name: developer.name,
               task_id: task.task_id,
               task_title: task.title,
               submitted_at: task.submitted_at,
-              submission_file: task.submission_file,
               submission_comment: task.submission_comment,
-              status: task.status || "pending"
+              submission_file: task.submission_file, 
+              status: task.status
             });
           }
         });
       });
     });
 
-    return res.status(200).json({ submissions: submissionsLog });
+    res.status(200).json({ submissions });
   } catch (error) {
-    console.error("Error fetching all submission logs:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    console.error("Error fetching all submissions log:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };

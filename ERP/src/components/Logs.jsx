@@ -1,5 +1,3 @@
-"use client"
-
 import { useEffect, useState } from "react"
 import axios from "axios"
 import {
@@ -16,30 +14,41 @@ import {
   AlertTriangle,
   Zap,
   Target,
+  FileText,
+  MessageSquare,
+  Download,
 } from "lucide-react"
 
 const Logs = () => {
   const [projects, setProjects] = useState([])
+  const [submissionLogs, setSubmissionLogs] = useState([])
   const [loading, setLoading] = useState(true)
   const [expandedProject, setExpandedProject] = useState(null)
 
-  const API = import.meta.env.VITE_API_BASE_URL // Ensure API base URL is available
+  const API = import.meta.env.VITE_API_BASE_URL
 
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchAllData = async () => {
       try {
-        // Fetch all projects for the Logs component
-        const response = await axios.get(`${API}/api/projects/projects`, {
-          withCredentials: true, // Assuming authentication is needed for all projects
+        const projectsResponse = await axios.get(`${API}/api/projects/projects`, {
+          withCredentials: true,
         })
-        setProjects(response.data.projects)
+        setProjects(projectsResponse.data.projects)
+
+        const submissionsResponse = await axios.get(`${API}/api/projects/admin/all-submissions`, {
+          withCredentials: true,
+        })
+        const sortedSubmissions = (submissionsResponse.data.submissions || []).sort(
+          (a, b) => new Date(b.submitted_at).getTime() - new Date(a.submitted_at).getTime(),
+        )
+        setSubmissionLogs(sortedSubmissions)
       } catch (error) {
-        console.error("Error fetching projects for logs:", error)
+        console.error("Error fetching data for logs:", error)
       } finally {
         setLoading(false)
       }
     }
-    fetchProjects()
+    fetchAllData()
   }, [])
 
   const formatDate = (dateString) => {
@@ -48,6 +57,8 @@ const Logs = () => {
       year: "numeric",
       month: "short",
       day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     })
   }
 
@@ -78,48 +89,37 @@ const Logs = () => {
     const now = new Date()
     const start = new Date(startDate)
     const end = new Date(endDate)
-    const totalDuration = end.getTime() - start.getTime()
-    const elapsed = now.getTime() - start.getTime()
     const remaining = end.getTime() - now.getTime()
 
     const daysRemaining = Math.ceil(remaining / (1000 * 60 * 60 * 24))
-    const progressPercentage = Math.max(0, Math.min(100, (elapsed / totalDuration) * 100))
 
-    let urgencyLevel, bgColor, textColor, borderColor, icon, message, pulseClass
+    let urgencyLevel, bgColor, textColor, icon, message, pulseClass
 
     if (now > end) {
-      // Overdue
       urgencyLevel = "overdue"
       bgColor = "bg-gradient-to-r from-red-500 to-red-600"
       textColor = "text-white"
-      borderColor = "border-red-300"
       icon = <AlertTriangle className="w-4 h-4" />
       message = `Overdue by ${Math.abs(daysRemaining)} day${Math.abs(daysRemaining) !== 1 ? "s" : ""}`
       pulseClass = "animate-pulse"
     } else if (daysRemaining <= 3) {
-      // Critical - 3 days or less
       urgencyLevel = "critical"
       bgColor = "bg-gradient-to-r from-orange-500 to-red-500"
       textColor = "text-white"
-      borderColor = "border-orange-300"
       icon = <Zap className="w-4 h-4" />
       message = `${daysRemaining} day${daysRemaining !== 1 ? "s" : ""} left!`
       pulseClass = "animate-pulse"
     } else if (daysRemaining <= 7) {
-      // Warning - 7 days or less
       urgencyLevel = "warning"
       bgColor = "bg-gradient-to-r from-yellow-400 to-orange-500"
       textColor = "text-white"
-      borderColor = "border-yellow-300"
       icon = <Target className="w-4 h-4" />
       message = `${daysRemaining} days remaining`
       pulseClass = ""
     } else {
-      // Safe - more than 7 days
       urgencyLevel = "safe"
       bgColor = "bg-gradient-to-r from-emerald-500 to-teal-600"
       textColor = "text-white"
-      borderColor = "border-emerald-300"
       icon = <CheckCircle className="w-4 h-4" />
       message = `${daysRemaining} days left`
       pulseClass = ""
@@ -129,14 +129,46 @@ const Logs = () => {
       urgencyLevel,
       bgColor,
       textColor,
-      borderColor,
       icon,
       message,
       daysRemaining,
-      progressPercentage,
       pulseClass,
       startDate: formatDate(startDate),
       endDate: formatDate(endDate),
+    }
+  }
+
+  const getSubmissionStatusColor = (status) => {
+    switch (status?.toLowerCase()) {
+      case "completed":
+        return "bg-emerald-100 text-emerald-800 border-emerald-200"
+      case "in progress":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200"
+      case "submitted":
+        return "bg-blue-100 text-blue-800 border-blue-200"
+      case "pending":
+        return "bg-slate-100 text-slate-800 border-slate-200"
+      case "revision":
+        return "bg-orange-100 text-orange-800 border-orange-200"
+      default:
+        return "bg-slate-100 text-slate-800 border-slate-200"
+    }
+  }
+
+  const getSubmissionStatusIcon = (status) => {
+    switch (status?.toLowerCase()) {
+      case "completed":
+        return <CheckCircle className="w-4 h-4" />
+      case "in progress":
+        return <Clock className="w-4 h-4" />
+      case "submitted":
+        return <FileText className="w-4 h-4" />
+      case "pending":
+        return <Clock className="w-4 h-4" />
+      case "revision":
+        return <MessageSquare className="w-4 h-4" />
+      default:
+        return <Clock className="w-4 h-4" />
     }
   }
 
@@ -163,7 +195,6 @@ const Logs = () => {
   return (
     <div className="p-6 lg:p-8">
       <div className="max-w-6xl mx-auto">
-        {/* Header Section */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl mb-4 shadow-lg">
             <FolderOpen className="w-8 h-8 text-white" />
@@ -171,10 +202,9 @@ const Logs = () => {
           <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-2">
             All Projects
           </h1>
-          <p className="text-slate-600">Manage and track all your projects in one place</p>
+          <p className="text-slate-600">View detailed logs and submissions for all projects</p>
         </div>
 
-        {/* Projects List */}
         <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
           {projects.length === 0 ? (
             <div className="p-12 text-center">
@@ -188,10 +218,11 @@ const Logs = () => {
                 const projectStatus = getProjectStatus(project.start_date, project.end_date)
                 const isExpanded = expandedProject === project.project_id
                 const deadlineInfo = getDeadlineInfo(project.start_date, project.end_date)
+                const projectSubmissions = submissionLogs.filter((log) => log.project_id === project.project_id)
 
                 return (
                   <div key={project.project_id} className="transition-all duration-300">
-                    {/* Project Header - Clickable */}
+                  
                     <div
                       onClick={() => toggleProjectExpansion(project.project_id)}
                       className="p-6 hover:bg-slate-50/50 transition-all duration-200 cursor-pointer group"
@@ -234,90 +265,107 @@ const Logs = () => {
                       </div>
                     </div>
 
-                    {/* Expanded Details */}
                     {isExpanded && (
                       <div className="px-6 pb-6 bg-slate-50/30 border-t border-slate-100">
                         <div className="pt-6 space-y-6">
-                          {/* Project Information Grid */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-slate-200 shadow-sm">
-                              <label className="block text-sm font-semibold text-slate-700 mb-2">Project Manager</label>
-                              <div className="flex items-center space-x-2">
-                                <User className="w-4 h-4 text-slate-500" />
-                                <span className="text-slate-800 font-medium">{project.project_manager_name}</span>
-                              </div>
-                            </div>
-
-                            <div className="p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-slate-200 shadow-sm">
-                              <label className="block text-sm font-semibold text-slate-700 mb-2">Project ID</label>
-                              <span className="font-mono text-slate-800 text-sm">{project.project_id}</span>
-                            </div>
-
-                            <div className="p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-slate-200 shadow-sm">
-                              <label className="block text-sm font-semibold text-slate-700 mb-2">Start Date</label>
-                              <div className="flex items-center space-x-2">
-                                <Calendar className="w-4 h-4 text-slate-500" />
-                                <span className="text-slate-800">{formatDate(project.start_date)}</span>
-                              </div>
-                            </div>
-
-                            <div className="p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-slate-200 shadow-sm">
-                              <label className="block text-sm font-semibold text-slate-700 mb-2">End Date</label>
-                              <div className="flex items-center space-x-2">
-                                <Calendar className="w-4 h-4 text-slate-500" />
-                                <span className="text-slate-800">{formatDate(project.end_date)}</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Project Status */}
+                          
                           <div className="p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-slate-200 shadow-sm">
-                            <label className="block text-sm font-semibold text-slate-700 mb-2">Current Status</label>
-                            <span
-                              className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${projectStatus.color}`}
-                            >
-                              {getStatusIcon(projectStatus.status)}
-                              <span className="ml-2 capitalize">{projectStatus.status}</span>
-                            </span>
-                          </div>
-
-                          {/* Action Button (if needed, otherwise remove) */}
-                          {/* <button
-                            className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-[1.02] shadow-lg"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              alert("Assign TL logic goes here")
-                            }}
-                          >
-                            <span className="flex items-center justify-center">
-                              <UserPlus className="w-5 h-5 mr-2" />
-                              Assign Team Lead to Project
-                            </span>
-                          </button> */}
-
-                          {/* Project Progress Section */}
-                          <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 shadow-sm">
-                            <h4 className="text-slate-700 font-semibold mb-3 flex items-center">
-                              <LineChart className="w-5 h-5 text-blue-500 mr-2" />
-                              Project Progress
+                            <h4 className="font-semibold text-slate-800 mb-3 flex items-center">
+                              <Briefcase className="w-5 h-5 text-emerald-600 mr-2" />
+                              Project Overview
                             </h4>
-                            <div className="space-y-3">
-                              <div className="flex justify-between text-sm">
-                                <span className="text-slate-600">Overall Progress</span>
-                                <span className="font-semibold text-slate-800">
-                                  {Math.round(deadlineInfo.progressPercentage)}%
-                                </span>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-1">
+                                  Project Manager
+                                </label>
+                                <div className="flex items-center space-x-2">
+                                  <User className="w-4 h-4 text-slate-500" />
+                                  <span className="text-slate-800 font-medium">{project.project_manager_name}</span>
+                                </div>
                               </div>
-                              <div className="w-full bg-slate-200 rounded-full h-2">
-                                <div
-                                  className="bg-gradient-to-r from-emerald-500 to-teal-600 h-2 rounded-full transition-all duration-500"
-                                  style={{ width: `${deadlineInfo.progressPercentage}%` }}
-                                ></div>
+                              <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-1">Project ID</label>
+                                <span className="font-mono text-slate-800 text-sm">{project.project_id}</span>
                               </div>
-                              <p className="text-sm text-slate-600 mt-2">
-                                Progress tracking and detailed metrics will be displayed here.
-                              </p>
+                              <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-1">Start Date</label>
+                                <div className="flex items-center space-x-2">
+                                  <Calendar className="w-4 h-4 text-slate-500" />
+                                  <span className="text-slate-800">{formatDate(project.start_date)}</span>
+                                </div>
+                              </div>
+                              <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-1">End Date</label>
+                                <div className="flex items-center space-x-2">
+                                  <Calendar className="w-4 h-4 text-slate-500" />
+                                  <span className="text-slate-800">{formatDate(project.end_date)}</span>
+                                </div>
+                              </div>
                             </div>
+                            <div className="mt-4">
+                              <label className="block text-sm font-semibold text-slate-700 mb-1">Current Status</label>
+                              <span
+                                className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${projectStatus.color}`}
+                              >
+                                {getStatusIcon(projectStatus.status)}
+                                <span className="ml-2 capitalize">{projectStatus.status}</span>
+                              </span>
+                            </div>
+                          </div>
+                          <div className="p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-slate-200 shadow-sm">
+                            <h4 className="font-semibold text-slate-800 mb-4 flex items-center">
+                              <LineChart className="w-5 h-5 text-blue-500 mr-2" />
+                              Task Submission Logs ({projectSubmissions.length})
+                            </h4>
+                            {projectSubmissions.length === 0 ? (
+                              <div className="text-center py-8">
+                                <FileText className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                                <p className="text-slate-500">No task submissions for this project yet.</p>
+                              </div>
+                            ) : (
+                              <div className="space-y-4">
+                                {projectSubmissions.map((submission, index) => (
+                                  <div key={index} className="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                                    <div className="flex items-start justify-between mb-2">
+                                      <div>
+                                        <h5 className="font-semibold text-slate-800">{submission.task_title}</h5>
+                                        <p className="text-sm text-slate-600">
+                                          Submitted by: {submission.developer_name} (ID: {submission.developer_id})
+                                        </p>
+                                      </div>
+                                      <span
+                                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getSubmissionStatusColor(
+                                          submission.status,
+                                        )}`}
+                                      >
+                                        {getSubmissionStatusIcon(submission.status)}
+                                        <span className="ml-1 capitalize">{submission.status || "pending"}</span>
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center text-xs text-slate-500 mb-2">
+                                      <Calendar className="w-3 h-3 mr-1" />
+                                      <span>Submitted: {formatDate(submission.submitted_at)}</span>
+                                    </div>
+                                    <p className="text-sm text-slate-700 mb-2">
+                                      <span className="font-medium">Comment:</span>{" "}
+                                      {submission.submission_comment || "No comment provided."}
+                                    </p>
+                                    {submission.submission_file?.path && (
+                                      <a
+                                        href={submission.submission_file.path}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center text-sm text-blue-600 hover:underline"
+                                      >
+                                        <Download className="w-4 h-4 mr-1" />
+                                        <span>Download Submitted File</span>
+                                      </a>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
