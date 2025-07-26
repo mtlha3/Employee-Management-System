@@ -167,7 +167,7 @@ export const getProjectDevelopers = async (req, res) => {
 };
 
 
-//============
+//============ Assign Task to Devs
 
 export const assignTaskToDeveloper = async (req, res) => {
   try {
@@ -239,10 +239,10 @@ export const getTasksForDeveloper = async (req, res) => {
   }
 };
 
-//==========
+//============= Get Project and Task Assign to dev's
   export const getProjectsAndTasksForDeveloper = async (req, res) => {
   try {
-    const developerId = req.user.employee_id; // Extract from authenticated user
+    const developerId = req.user.employee_id;
 
     const projects = await Project.find({
       "developers.employee_id": developerId,
@@ -279,8 +279,7 @@ export const getTasksForDeveloper = async (req, res) => {
   }
 }
 
-//==========
-
+//========== Task Submit by Devs
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const dir = "uploads/submitted_tasks";
@@ -343,7 +342,7 @@ export const submitTaskByDeveloper = async (req, res) => {
 };
 
 
-//=========
+//========= Get All Task Submit by Devs
 export const getAllTaskSubmissionsForTeamLead = async (req, res) => {
   const teamLeadId = req.user?.employee_id;
 
@@ -376,8 +375,6 @@ export const getAllTaskSubmissionsForTeamLead = async (req, res) => {
         });
       });
     });
-
-    // ✅ Return correct response
     return res.status(200).json({ submissions });
 
   } catch (error) {
@@ -386,8 +383,7 @@ export const getAllTaskSubmissionsForTeamLead = async (req, res) => {
   }
 };
 
-//======
-
+//======== Status Update by Team Lead on Task Submission
 export const updateTaskStatus = async (req, res) => {
   const { project_id, developer_id, task_id, status } = req.body;
 
@@ -422,7 +418,7 @@ export const updateTaskStatus = async (req, res) => {
   }
 };
 
-//=============
+//============= get Status Update from Team Lead on Task submission
 export const getStatusUpdatedTasksForTeamLead = async (req, res) => {
   const teamLeadId = req.user?.employee_id;
 
