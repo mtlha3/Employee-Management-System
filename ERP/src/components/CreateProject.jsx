@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import axios from "axios"
 import { FolderPlus, Calendar, User, FileText, CheckCircle, XCircle, Briefcase } from "lucide-react"
@@ -17,7 +15,6 @@ const CreateProject = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [createdProject, setCreatedProject] = useState(null)
 
-  // Fetch manager info on mount
   useEffect(() => {
     const fetchManagerInfo = async () => {
       try {
@@ -79,7 +76,7 @@ const CreateProject = () => {
   return (
     <div className="p-6 lg:p-8">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
+        
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl mb-4 shadow-lg">
             <FolderPlus className="w-8 h-8 text-white" />
@@ -91,13 +88,12 @@ const CreateProject = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Form Section */}
+          
           <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 p-8 relative overflow-hidden">
-            {/* Background elements */}
+            
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full -translate-y-16 translate-x-16 opacity-50"></div>
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-purple-100 to-pink-100 rounded-full translate-y-12 -translate-x-12 opacity-50"></div>
 
-            {/* Alerts */}
             {message && (
               <div
                 className={`mb-6 p-4 rounded-xl border-l-4 ${
@@ -117,9 +113,8 @@ const CreateProject = () => {
               </div>
             )}
 
-            {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
-              {/* Project Name */}
+             
               <div className="group">
                 <label className="block text-sm font-semibold text-slate-700 mb-2">Project Name</label>
                 <div className="relative">
@@ -137,7 +132,6 @@ const CreateProject = () => {
                 </div>
               </div>
 
-              {/* Start Date */}
               <div className="group">
                 <label className="block text-sm font-semibold text-slate-700 mb-2">Start Date</label>
                 <div className="relative">
@@ -155,7 +149,6 @@ const CreateProject = () => {
                 </div>
               </div>
 
-              {/* End Date */}
               <div className="group">
                 <label className="block text-sm font-semibold text-slate-700 mb-2">End Date</label>
                 <div className="relative">
@@ -173,7 +166,6 @@ const CreateProject = () => {
                 </div>
               </div>
 
-              {/* Manager ID (read-only) */}
               <div className="group">
                 <label className="block text-sm font-semibold text-slate-700 mb-2">Project Manager ID</label>
                 <div className="relative">
@@ -189,7 +181,6 @@ const CreateProject = () => {
                 </div>
               </div>
 
-              {/* Manager Name (read-only) */}
               <div className="group">
                 <label className="block text-sm font-semibold text-slate-700 mb-2">Project Manager Name</label>
                 <div className="relative">
@@ -205,7 +196,6 @@ const CreateProject = () => {
                 </div>
               </div>
 
-              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={isSubmitting}
@@ -219,7 +209,6 @@ const CreateProject = () => {
             </form>
           </div>
 
-          {/* Project Details Preview */}
           <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 p-8">
             <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center">
               <Briefcase className="w-6 h-6 mr-2 text-emerald-600" />

@@ -1,5 +1,3 @@
-"use client"
-
 import { useEffect, useState } from "react"
 import axios from "axios"
 import {
@@ -114,7 +112,6 @@ const ProjectProgress = () => {
 
   return (
     <div className="p-6 lg:p-8 max-w-6xl mx-auto">
-      {/* Modal for Assign Team Lead */}
       {showModal && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
           <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl relative">
@@ -150,7 +147,6 @@ const ProjectProgress = () => {
         </div>
       )}
 
-      {/* Header */}
       <div className="text-center mb-8">
         <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl mb-4 shadow-lg">
           <FolderOpen className="w-8 h-8 text-white" />
@@ -159,7 +155,6 @@ const ProjectProgress = () => {
         <p className="text-slate-600">Manage and track all your projects in one place</p>
       </div>
 
-      {/* Projects List */}
       <div className="bg-white shadow-xl rounded-3xl overflow-hidden">
         {projects.length === 0 ? (
           <div className="p-12 text-center text-slate-500">
@@ -220,9 +215,6 @@ const ProjectProgress = () => {
                           )}
                         </div>
                       </div>
-
-                      {/* Action Button */}
-                      {/* Action Button */}
                       {project.team_lead ? (
                         <button
                           disabled
@@ -241,8 +233,6 @@ const ProjectProgress = () => {
                         </button>
                       )}
 
-
-                      {/* Placeholder for Developers */}
                       <div className="mt-6 border-t pt-4">
                         <h4 className="text-slate-700 font-semibold mb-2">Developers</h4>
                         <p className="text-slate-500 text-sm italic">Developer assignment coming soon.</p>

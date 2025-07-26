@@ -1,5 +1,3 @@
-"use client"
-
 import { useEffect, useState } from "react"
 import axios from "axios"
 import {
@@ -119,7 +117,6 @@ const TeamLeadDashboard = () => {
     })
   }
 
-  // Enhanced deadline calculation with unique styling
   const getDeadlineInfo = (startDate, endDate) => {
     const now = new Date()
     const start = new Date(startDate)
@@ -134,7 +131,6 @@ const TeamLeadDashboard = () => {
     let urgencyLevel, bgColor, textColor, borderColor, icon, message, pulseClass
 
     if (now > end) {
-      // Overdue
       urgencyLevel = "overdue"
       bgColor = "bg-gradient-to-r from-red-500 to-red-600"
       textColor = "text-white"
@@ -143,7 +139,6 @@ const TeamLeadDashboard = () => {
       message = `Overdue by ${Math.abs(daysRemaining)} day${Math.abs(daysRemaining) !== 1 ? "s" : ""}`
       pulseClass = "animate-pulse"
     } else if (daysRemaining <= 3) {
-      // Critical - 3 days or less
       urgencyLevel = "critical"
       bgColor = "bg-gradient-to-r from-orange-500 to-red-500"
       textColor = "text-white"
@@ -152,7 +147,6 @@ const TeamLeadDashboard = () => {
       message = `${daysRemaining} day${daysRemaining !== 1 ? "s" : ""} left!`
       pulseClass = "animate-pulse"
     } else if (daysRemaining <= 7) {
-      // Warning - 7 days or less
       urgencyLevel = "warning"
       bgColor = "bg-gradient-to-r from-yellow-400 to-orange-500"
       textColor = "text-white"
@@ -161,7 +155,6 @@ const TeamLeadDashboard = () => {
       message = `${daysRemaining} days remaining`
       pulseClass = ""
     } else {
-      // Safe - more than 7 days
       urgencyLevel = "safe"
       bgColor = "bg-gradient-to-r from-emerald-500 to-teal-600"
       textColor = "text-white"
@@ -234,7 +227,6 @@ const TeamLeadDashboard = () => {
   return (
     <div className="p-6 lg:p-8">
       <div className="max-w-6xl mx-auto">
-        {/* Header Section */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl mb-4 shadow-lg">
             <Users className="w-8 h-8 text-white" />
@@ -245,7 +237,6 @@ const TeamLeadDashboard = () => {
           <p className="text-slate-600">Manage your assigned projects and team members</p>
         </div>
 
-        {/* Projects List */}
         <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
           {projects.length === 0 ? (
             <div className="p-12 text-center">
@@ -264,7 +255,7 @@ const TeamLeadDashboard = () => {
 
                 return (
                   <div key={project.project_id} className="transition-all duration-300">
-                    {/* Project Header - Clickable */}
+                  
                     <div
                       onClick={() => toggleProjectCard(project.project_id)}
                       className="p-6 hover:bg-slate-50/50 transition-all duration-200 cursor-pointer group"
@@ -280,7 +271,6 @@ const TeamLeadDashboard = () => {
                             </h3>
                             <p className="text-sm text-slate-600 mb-2">Manager: {project.project_manager_name}</p>
 
-                            {/* Enhanced Deadline Display */}
                             <div className="flex items-center space-x-3">
                               <div
                                 className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${deadlineInfo.bgColor} ${deadlineInfo.textColor} shadow-lg ${deadlineInfo.pulseClass}`}
@@ -293,7 +283,6 @@ const TeamLeadDashboard = () => {
                               </div>
                             </div>
 
-                            {/* Progress Bar */}
                             <div className="mt-2 w-48">
                               <div className="flex justify-between text-xs text-slate-500 mb-1">
                                 <span>Progress</span>
@@ -330,7 +319,6 @@ const TeamLeadDashboard = () => {
                         </div>
                       </div>
 
-                      {/* Add Team Members Button */}
                       <div className="mt-4 flex justify-start">
                         <button
                           onClick={(e) => {
@@ -346,11 +334,9 @@ const TeamLeadDashboard = () => {
                       </div>
                     </div>
 
-                    {/* Expanded Team Details */}
                     {isExpanded && (
                       <div className="px-6 pb-6 bg-slate-50/30 border-t border-slate-100">
                         <div className="pt-6">
-                          {/* Enhanced Deadline Details in Expanded View */}
                           <div className="mb-6 p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-slate-200 shadow-sm">
                             <h4 className="font-semibold text-slate-800 mb-3 flex items-center">
                               <Target className="w-5 h-5 text-emerald-600 mr-2" />
@@ -382,7 +368,6 @@ const TeamLeadDashboard = () => {
                               </div>
                             </div>
 
-                            {/* Enhanced Progress Bar */}
                             <div className="mt-4">
                               <div className="flex justify-between text-sm text-slate-600 mb-2">
                                 <span>Overall Progress</span>
@@ -450,11 +435,10 @@ const TeamLeadDashboard = () => {
         </div>
       </div>
 
-      {/* Enhanced Modal */}
       {modalProjectId && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden border border-white/20">
-            {/* Modal Header */}
+           
             <div className="p-6 border-b border-slate-100">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
@@ -475,7 +459,6 @@ const TeamLeadDashboard = () => {
               </div>
             </div>
 
-            {/* Search Bar */}
             <div className="p-6 border-b border-slate-100">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -491,7 +474,6 @@ const TeamLeadDashboard = () => {
               </div>
             </div>
 
-            {/* Employee List */}
             <div className="p-6 max-h-80 overflow-y-auto">
               {filteredEmployees.length === 0 ? (
                 <div className="text-center py-8">
@@ -529,7 +511,6 @@ const TeamLeadDashboard = () => {
               )}
             </div>
 
-            {/* Modal Actions */}
             <div className="p-6 border-t border-slate-100 bg-slate-50/50">
               <div className="flex space-x-3">
                 <button
