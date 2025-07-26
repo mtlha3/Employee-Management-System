@@ -545,3 +545,27 @@ export const downloadSubmissionFile = async (req, res) => {
     return res.status(500).json({ error: "Failed to download file", details: error.message });
   }
 };
+
+//========= Delete developer from Project
+export const removeDeveloperFromProject = async (req, res) => {
+  const { projectId, employeeId } = req.params
+
+  try {
+    const project = await Project.findOne({ project_id: projectId })
+
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found' })
+    }
+
+    project.developers = project.developers.filter(
+      (dev) => dev.employee_id !== employeeId
+    )
+
+    await project.save()
+
+    res.status(200).json({ message: 'Developer removed successfully' })
+  } catch (error) {
+    console.error('Error removing developer:', error)
+    res.status(500).json({ error: 'Internal Server Error' })
+  }
+}

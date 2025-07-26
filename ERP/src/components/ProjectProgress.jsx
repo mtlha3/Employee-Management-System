@@ -34,7 +34,7 @@ const ProjectProgress = () => {
             try {
               const leadRes = await axios.get(`${API}/api/projects/projects/team-lead/${proj.project_id}`)
               lead = leadRes.data.team_lead
-            } catch {}
+            } catch { }
             return { ...proj, team_lead: lead, developers: [] }
           })
         )
@@ -58,19 +58,19 @@ const ProjectProgress = () => {
   }
 
   const fetchProjectDevelopers = async (project_id) => {
-  try {
-    const res = await axios.get(`${API}/api/projects/projects/${project_id}/developers`)
-    setProjects((prevProjects) =>
-      prevProjects.map((proj) =>
-        proj.project_id === project_id
-          ? { ...proj, developers: res.data.developers }
-          : proj
+    try {
+      const res = await axios.get(`${API}/api/projects/projects/${project_id}/developers`)
+      setProjects((prevProjects) =>
+        prevProjects.map((proj) =>
+          proj.project_id === project_id
+            ? { ...proj, developers: res.data.developers }
+            : proj
+        )
       )
-    )
-  } catch (err) {
-    console.error("Error fetching developers:", err)
+    } catch (err) {
+      console.error("Error fetching developers:", err)
+    }
   }
-}
 
 
   const openAssignModal = async (projectId) => {
@@ -136,6 +136,26 @@ const ProjectProgress = () => {
       </div>
     )
   }
+  const deleteDeveloper = async (projectId, employeeId) => {
+    if (!confirm("Are you sure you want to remove this developer?")) return;
+    try {
+      await axios.delete(`${API}/api/projects/projects/${projectId}/developers/${employeeId}`);
+      setProjects((prev) =>
+        prev.map((p) =>
+          p.project_id === projectId
+            ? {
+              ...p,
+              developers: p.developers.filter((dev) => dev.employee_id !== employeeId),
+            }
+            : p
+        )
+      );
+    } catch (err) {
+      console.error("Error deleting developer:", err);
+      alert("Failed to remove developer.");
+    }
+  };
+
 
   return (
     <div className="p-6 lg:p-8 max-w-6xl mx-auto">
@@ -257,25 +277,51 @@ const ProjectProgress = () => {
                       )}
 
                       {/* Developers */}
+                      {/* Developers */}
                       <div className="mt-6 border-t pt-4">
-                        <h4 className="text-slate-700 font-semibold mb-2">Developers</h4>
+                        <h4 className="text-slate-700 font-semibold mb-4 text-lg flex items-center">
+                          👨‍💻 Developers
+                        </h4>
+
                         {project.developers.length === 0 ? (
                           <p className="text-slate-500 text-sm italic">No developers yet.</p>
                         ) : (
-                          Object.entries(project.developers.reduce((acc, dev) => {
-                            acc[dev.role] = acc[dev.role] || []
-                            acc[dev.role].push(dev)
-                            return acc
-                          }, {})).map(([role, list]) => (
-                            <div key={role} className="mb-4">
-                              <p className="font-medium">{role} ({list.length})</p>
-                              <ul className="list-disc ml-6">
-                                {list.map((d) => <li key={d.employee_id}>{d.name} (ID: {d.employee_id})</li>)}
-                              </ul>
-                            </div>
-                          ))
+                          <div className="space-y-6">
+                            {Object.entries(
+                              project.developers.reduce((acc, dev) => {
+                                acc[dev.role] = acc[dev.role] || []
+                                acc[dev.role].push(dev)
+                                return acc
+                              }, {})
+                            ).map(([role, list]) => (
+                              <div key={role} className="bg-white p-4 border border-slate-200 rounded-xl shadow-sm">
+                                <h5 className="text-emerald-700 font-semibold mb-2 capitalize text-base border-b pb-1 border-dashed border-emerald-200">
+                                  {role} ({list.length})
+                                </h5>
+                                <ul className="list-disc ml-5 space-y-1 text-slate-700 text-sm">
+                                  {list.map((d) => (
+                                    <li key={d.employee_id} className="leading-snug flex justify-between items-center group">
+                                      <span>
+                                        <span className="font-medium">{d.name}</span>{" "}
+                                        <span className="text-slate-500">(ID: {d.employee_id})</span>
+                                      </span>
+                                      <button
+                                        onClick={() => deleteDeveloper(project.project_id, d.employee_id)}
+                                        className="text-red-500 hover:text-red-700 text-xs ml-4 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        title="Remove Developer"
+                                      >
+                                        Remove
+                                      </button>
+                                    </li>
+                                  ))}
+
+                                </ul>
+                              </div>
+                            ))}
+                          </div>
                         )}
                       </div>
+
                     </div>
                   )}
                 </div>
