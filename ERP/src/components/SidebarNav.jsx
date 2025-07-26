@@ -44,6 +44,7 @@ const SidebarNav = ({ role, onNavigate  }) => {
     if (buttonText.includes("Assign Tasks")) return UserCheck
     if (buttonText.includes("Create a Project")) return FolderPlus
     if (buttonText.includes("View Project Progress")) return BarChart2
+    if (buttonText.includes("All Submissions by Devs")) return FileText
     return User
   }
 
@@ -71,6 +72,7 @@ const SidebarNav = ({ role, onNavigate  }) => {
         buttons = [
           { text: "My Projects", action: () => onNavigate("assign-task"), },
           { text: "Today's Tasks", action: () => onNavigate("assign-task-team"), },
+          { text: "All Submissions by Devs", action: () => onNavigate("Logs"),},
           { text: "Request to HR", action: () => onNavigate("request-hr"),},
         ]
         break
@@ -78,7 +80,8 @@ const SidebarNav = ({ role, onNavigate  }) => {
         buttons = [
           { text: "Create a Project", action: () => onNavigate("create-project") },
           { text: "View Project Progress", action: () => onNavigate("progress-project") },
-          { text: "Request to HR", action: () => onNavigate("request-hr"), },
+          { text: "All Submissions by Devs", action: () => onNavigate("Logs"), },
+          { text: "Request to HR", action: () => onNavigate("request-hr"),},
         ]
         break
       default:
