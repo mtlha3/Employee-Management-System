@@ -114,7 +114,7 @@ export const loginEmployee = async (req, res) => {
 
 //==================== Logout ====================
 export const logoutEmployee = (req, res) => {
-  res.clearCookie('token', {
+  res.clearCookie('auth_token', {
     httpOnly: true,
     sameSite: 'Strict',
     secure: process.env.NODE_ENV === 'production',

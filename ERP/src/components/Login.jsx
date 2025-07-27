@@ -18,7 +18,13 @@ const Login = () => {
         e.preventDefault();
 
         try {
-            const response = await axios.post(`${API}/api/employees/login`, formData);
+            const response = await axios.post(
+                `${API}/api/employees/login`,
+                formData,
+                {
+                    withCredentials: true
+                }
+            );
             setMessage(response.data.message);
             setIsError(false);
             setTimeout(() => navigate("/dashboard"), 1000);
@@ -32,7 +38,7 @@ const Login = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 flex items-center justify-center px-4 py-8">
             <div className="bg-white/90 backdrop-blur-sm p-8 rounded-3xl shadow-2xl border border-white/20 w-full max-w-md relative overflow-hidden">
-                
+
                 <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full -translate-y-16 translate-x-16 opacity-50"></div>
                 <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-purple-100 to-pink-100 rounded-full translate-y-12 -translate-x-12 opacity-50"></div>
 
@@ -62,7 +68,7 @@ const Login = () => {
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
-                   
+
                     <div className="group">
                         <label className="block text-sm font-semibold text-slate-700 mb-2">Email Address</label>
                         <div className="relative">
