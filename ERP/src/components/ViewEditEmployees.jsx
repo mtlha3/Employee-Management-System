@@ -9,6 +9,7 @@ const ViewEditEmployees = () => {
   const [loading, setLoading] = useState(true)
   const [editingEmployeeId, setEditingEmployeeId] = useState(null)
   const [editData, setEditData] = useState({})
+    const API = import.meta.env.VITE_API_BASE_URL
 
   useEffect(() => {
     fetchEmployees()
@@ -16,7 +17,7 @@ const ViewEditEmployees = () => {
 
   const fetchEmployees = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/employees/employees`, {
+      const res = await axios.get(`${API}/api/employees/employees`, {
         withCredentials: true,
       })
       setEmployees(res.data.employees || [])
@@ -41,7 +42,7 @@ const ViewEditEmployees = () => {
       if (!result.isConfirmed) return
 
       await axios.put(
-        `${import.meta.env.VITE_API_BASE_URL}/api/employees/reset-password/${employeeId}`,
+        `${API}/api/employees/reset-password/${employeeId}`,
         {},
         { withCredentials: true }
       )
@@ -65,7 +66,7 @@ const ViewEditEmployees = () => {
   const handleUpdate = async (id) => {
     try {
       await axios.put(
-        `${import.meta.env.VITE_API_BASE_URL}/api/employees/update/${id}`,
+        `${API}/api/employees/update/${id}`,
         editData,
         { withCredentials: true }
       )

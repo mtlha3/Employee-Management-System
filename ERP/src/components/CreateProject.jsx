@@ -14,11 +14,12 @@ const CreateProject = () => {
   const [isError, setIsError] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [createdProject, setCreatedProject] = useState(null)
+  const API = import.meta.env.VITE_API_BASE_URL
 
   useEffect(() => {
     const fetchManagerInfo = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/employees/me`, {
+        const response = await axios.get(`${API}/api/employees/me`, {
           withCredentials: true,
         })
         setFormData((prev) => ({
@@ -42,7 +43,7 @@ const CreateProject = () => {
     setIsSubmitting(true)
 
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/projects/create`, formData, {
+      const response = await axios.post(`${API}/api/projects/create`, formData, {
         withCredentials: true,
       })
       setMessage(response.data.message || "Project created successfully!")

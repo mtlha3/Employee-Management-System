@@ -2,7 +2,7 @@ import { useState } from "react"
 import axios from "axios"
 import "../index.css"
 import { User, Mail, Lock, Briefcase, Shield, CheckCircle, XCircle, ChevronDown, UserPlus } from "lucide-react"
-import api from '../api/api'
+const API = import.meta.env.VITE_API_BASE_URL
 const Signup = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -22,7 +22,7 @@ const Signup = () => {
 const handleSubmit = async (e) => {
   e.preventDefault();
   try {
-    const response = await api.post("/api/employees/signup", formData);
+    const response = await axios.post(`${API}/api/employees/signup`, formData);
     setMessage(response.data.message);
     setIsError(false);
     setFormData({

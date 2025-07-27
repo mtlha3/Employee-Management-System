@@ -8,6 +8,7 @@ import {
   CheckCircle,
   XCircle,
 } from "lucide-react"
+const API = import.meta.env.VITE_API_BASE_URL
 
 const RequestToHR = () => {
   const [formData, setFormData] = useState({
@@ -25,7 +26,7 @@ const RequestToHR = () => {
   useEffect(() => {
     const fetchEmployee = async () => {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/employees/me`, {
+        const res = await axios.get(`${API}/api/employees/me`, {
           withCredentials: true,
         })
         setFormData((prev) => ({
@@ -50,7 +51,7 @@ const RequestToHR = () => {
 
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/api/employees/request-hr`,
+        `${API}/api/employees/request-hr`,
         formData,
         {
           withCredentials: true,
@@ -75,7 +76,7 @@ const RequestToHR = () => {
   const fetchEmployeeRequests = async () => {
     setLoadingRequests(true)
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/employees/my-requests`, {
+      const res = await axios.get(`${API}/api/employees/my-requests`, {
         withCredentials: true,
       })
       setEmployeeRequests(res.data.requests || [])

@@ -11,6 +11,7 @@ const HR_request_response = () => {
   const [filterStatus, setFilterStatus] = useState("all")
   const [message, setMessage] = useState("")
   const [isError, setIsError] = useState(false)
+  const API = import.meta.env.VITE_API_BASE_URL
 
   useEffect(() => {
     fetchRequests()
@@ -18,7 +19,7 @@ const HR_request_response = () => {
 
   const fetchRequests = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/employees/requests`, {
+      const response = await axios.get(`${API}/api/employees/requests`, {
         withCredentials: true,
       })
       setRequests(response.data.requests || [])
@@ -39,7 +40,7 @@ const HR_request_response = () => {
 const handleApprove = async () => {
   try {
     await axios.put(
-      `${import.meta.env.VITE_API_BASE_URL}/api/employees/requests/${selectedRequest.id}/status`,
+      `${API}/api/employees/requests/${selectedRequest.id}/status`,
       { status: "approved" },
       { withCredentials: true }
     )
@@ -56,7 +57,7 @@ const handleApprove = async () => {
 const handleReject = async () => {
   try {
     await axios.put(
-      `${import.meta.env.VITE_API_BASE_URL}/api/employees/requests/${selectedRequest.id}/status`,
+      `${API}/api/employees/requests/${selectedRequest.id}/status`,
       { status: "rejected" },
       { withCredentials: true }
     )

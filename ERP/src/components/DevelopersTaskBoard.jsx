@@ -34,10 +34,11 @@ const DevelopersTaskBoard = () => {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
+  const API = import.meta.env.VITE_API_BASE_URL
 
   const fetchProjectsAndTasks = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/projects/developers/projects-and-tasks", {
+      const response = await axios.get(`${API}/api/projects/developers/projects-and-tasks`, {
         withCredentials: true,
       });
       const data = response.data;
@@ -174,7 +175,7 @@ const DevelopersTaskBoard = () => {
       }
 
       await axios.post(
-        `http://localhost:5000/api/projects/developers/${developerId}/tasks/${selectedTask.task_id}/submit`,
+        `${API}/api/projects/developers/${developerId}/tasks/${selectedTask.task_id}/submit`,
         formData,
         {
           withCredentials: true,

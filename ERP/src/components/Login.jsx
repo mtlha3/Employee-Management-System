@@ -2,7 +2,7 @@ import { useState } from "react"
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
 import { Mail, Lock, LogIn, CheckCircle, XCircle, User } from "lucide-react"
-import api from '../api/api';
+const API = import.meta.env.VITE_API_BASE_URL
 
 const Login = () => {
     const [formData, setFormData] = useState({ email: "", password: "" })
@@ -18,7 +18,7 @@ const Login = () => {
         e.preventDefault();
 
         try {
-            const response = await api.post("/api/employees/login", formData);
+            const response = await axios.post(`${API}/api/employees/login`, formData);
             setMessage(response.data.message);
             setIsError(false);
             setTimeout(() => navigate("/dashboard"), 1000);

@@ -15,6 +15,7 @@ import {
   Menu,
   X,
 } from "lucide-react"
+const API = import.meta.env.VITE_API_BASE_URL
 
 const SidebarNav = ({ role, onNavigate  }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -23,7 +24,7 @@ const SidebarNav = ({ role, onNavigate  }) => {
   const handleLogout = async () => {
     try {
       await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/api/employees/logout`,
+        `${API}/api/employees/logout`,
         {},
         {
           withCredentials: true,
