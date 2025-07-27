@@ -90,11 +90,11 @@ export const loginEmployee = async (req, res) => {
       user_agent,
     });
 
-    res.cookie('token', token, {
+    res.cookie('auth_token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'Strict',
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      secure: process.env.NODE_ENV === 'production', 
+      sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
     res.status(200).json({
@@ -125,7 +125,7 @@ export const logoutEmployee = (req, res) => {
 
 //==================== Current Employee ====================
 export const getCurrentEmployee = (req, res) => {
-  const token = req.cookies.token;
+  const token = req.cookies.auth_token;
   if (!token) return res.status(401).json({ error: 'Not authenticated' });
 
   try {
