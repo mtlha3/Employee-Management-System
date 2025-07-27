@@ -10,6 +10,7 @@ import connectDB from "./db/db.js";
 dotenv.config();
 
 const app = express();
+await connectDB();
 
 app.use(cors({
   origin: "http://localhost:5173",  
@@ -22,8 +23,10 @@ app.use("/api/employees", employeeRoutes);
 app.use("/api/employees", hrRoutes);
 app.use("/api/projects", projectRoutes);
 
+app.get("/", (req, res) => {
+  res.send("API is running...");
+});
 
-await connectDB();
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
