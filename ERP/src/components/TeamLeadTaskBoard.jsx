@@ -231,7 +231,7 @@ const TeamLeadTaskBoard = () => {
     setReviewSubmitting(true)
     try {
       await axios.put(
-        `${API}/api/project/updatetaskstatus`,
+        `${API}/api/projects/project/updatetaskstatus`,
         {
           project_id: selectedTaskForStatusUpdate.project_id,
           developer_id: selectedTaskForStatusUpdate.developer.employee_id,

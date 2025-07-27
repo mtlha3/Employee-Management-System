@@ -111,7 +111,7 @@ const ProjectProgress = () => {
     if (!selectedLead) return
     try {
       await axios.post(`${API}/api/projects/assign-tl/${selectedProjectId}`, selectedLead)
-      const res = await axios.get(`${API}/api/projects/team-lead/${selectedProjectId}`)
+      const res = await axios.get(`${API}/api/projects/projects/team-lead/${selectedProjectId}`)
       const updatedLead = res.data.team_lead
       setProjects((prev) =>
         prev.map((p) => (p.project_id === selectedProjectId ? { ...p, team_lead: updatedLead } : p)),

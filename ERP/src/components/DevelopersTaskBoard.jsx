@@ -159,12 +159,6 @@ const DevelopersTaskBoard = () => {
       formData.append("file", submissionData.file)
     }
 
-    console.log("Sending submission data:", {
-      taskId: selectedTask.task_id,
-      comment: submissionData.comments,
-      hasFile: !!submissionData.file,
-    })
-
     try {
       const developerId = projectsAndTasks.find((project) =>
         project.developer?.tasks?.some((task) => task.task_id === selectedTask.task_id),
